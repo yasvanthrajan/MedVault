@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Book Appointment – MedVault</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/css/intlTelInput.css"/>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 30px;
+    }
+    h1 {
+      color: teal;
+    }
+    input, textarea, button {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: teal;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .msg {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    .error { color: red; }
+    .success { color: green; }
+
+    /* Fix phone input width with flag dropdown */
+    .iti {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h1>🗓️ Book an Appointment</h1>
+
+  <form id="appointmentForm">
+    <input type="text" id="name" placeholder="🔑 Your Name" required>
+    <input type="tel" id="phone" placeholder="📞 Phone Number" required>
+    <input type="date" id="date" required>
+    <textarea id="reason" placeholder="📄 Reason for Appointment" required></textarea>
+    <button type="submit">Book Appointment</button>
+  </form>
+
+  <div id="msg" class="msg"></div>
+
+  <!-- ✅ Required JS for Phone Input Dropdown -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/intlTelInput.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"></script>
+
+  <script>
+    // ✅ Enable Flag + Country Dropdown
+    const phoneInput = document.querySelector("#phone");
+    const iti = window.intlTelInput(phoneInput, {
+      initialCountry: "in",
+      preferredCountries: ["in", "us"],
+      separateDialCode: false,
+      nationalMode: false,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.19/js/utils.js"
+    });
+
+    document.getElementById("appointmentForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const phone = iti.getNumber(); // Full phone number with country code
+      const date = document.getElementById("date").value;
+      const reason = document.getElementById("reason").value;
+      const msg = document.getElementById("msg");
+
+      fetch("http://127.0.0.1:5000/book-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `name=${encodeURIComponent(name)}&phone=${encodeURIComponent(phone)}&date=${encodeURIComponent(date)}&reason=${encodeURIComponent(reason)}`
+      })
+      .then(res => res.text())
+      .then(response => {
+        if (response.includes("✅")) {
+          msg.textContent = response;
+          msg.className = "msg success";
+          document.getElementById("appointmentForm").reset();
+          iti.setNumber(""); // Clear phone input
+        } else {
+          msg.textContent = response;
+          msg.className = "msg error";
+        }
+      })
+      .catch(error => {
+        msg.textContent = "❌ Failed to book appointment";
+        msg.className = "msg error";
+        console.error(error);
+      });
+    });
+  </script>
+</body>
+</html>

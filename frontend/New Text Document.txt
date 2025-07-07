@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MedVault – Patient Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+    }
+    h1 {
+      color: teal;
+    }
+    .tab-buttons {
+      margin-bottom: 20px;
+    }
+    .tab-buttons button {
+      padding: 10px 20px;
+      margin-right: 10px;
+      border: none;
+      background-color: #ddd;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    .tab-buttons button.active {
+      background-color: teal;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .card {
+      padding: 15px;
+      margin-bottom: 15px;
+      background: #fff;
+      border-left: 5px solid teal;
+      border-radius: 5px;
+    }
+    .report-link {
+      display: inline-block;
+      padding: 8px 14px;
+      background-color: teal;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    input {
+      padding: 10px;
+      width: 250px;
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>👤 Patient Dashboard</h1>
+
+  <label for="phone">📞 Enter Your Registered Phone Number:</label><br>
+  <input type="text" id="phone" placeholder="e.g. +919876543210">
+
+  <div class="tab-buttons">
+    <button class="tab-btn active" data-tab="appointments">📅 Appointments</button>
+    <button class="tab-btn" data-tab="prescriptions">💊 Prescriptions</button>
+    <button class="tab-btn" data-tab="reports">📄 Reports</button>
+  </div>
+
+  <div id="appointments" class="tab-content active">
+    <h2>📅 Confirmed Appointments</h2>
+    <div id="appointmentsList">Enter phone number to view appointments.</div>
+  </div>
+
+  <div id="prescriptions" class="tab-content">
+    <h2>💊 Prescriptions</h2>
+    <div id="prescriptionsList">Enter phone number to view prescriptions.</div>
+  </div>
+
+  <div id="reports" class="tab-content">
+    <h2>📄 Uploaded Reports</h2>
+    <div id="reportsList">Enter phone number to view reports.</div>
+  </div>
+
+  <script>
+    const phoneInput = document.getElementById("phone");
+    const appointmentsList = document.getElementById("appointmentsList");
+    const prescriptionsList = document.getElementById("prescriptionsList");
+    const reportsList = document.getElementById("reportsList");
+
+    // Tab switching
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    phoneInput.addEventListener("change", () => {
+      const phone = phoneInput.value.trim();
+      if (!phone.startsWith("+") || phone.length < 10) {
+        alert("Enter valid phone number with country code (e.g., +91...)");
+        return;
+      }
+
+      // ✅ Fetch Appointments
+      fetch(`http://127.0.0.1:5000/get-patient-appointments?phone=${encodeURIComponent(phone)}`)
+        .then(res => res.json())
+        .then(data => {
+          appointmentsList.innerHTML = "";
+          if (data.appointments && data.appointments.length > 0) {
+            data.appointments.forEach(app => {
+              const div = document.createElement("div");
+              div.className = "card";
+              div.innerHTML = `
+                <strong>Date:</strong> ${app.confirmed_datetime}<br>
+                <strong>Reason:</strong> ${app.reason}
+              `;
+              appointmentsList.appendChild(div);
+            });
+          } else {
+            appointmentsList.innerHTML = "No confirmed appointments.";
+          }
+        });
+
+      // ✅ Fetch Prescriptions
+      fetch(`http://127.0.0.1:5000/get-patient-prescriptions?phone=${encodeURIComponent(phone)}`)
+        .then(res => res.json())
+        .then(data => {
+          prescriptionsList.innerHTML = "";
+          if (data.prescriptions && data.prescriptions.length > 0) {
+            data.prescriptions.forEach(p => {
+              const div = document.createElement("div");
+              div.className = "card";
+              div.innerHTML = `
+                <strong>Medicine:</strong> ${p.medicine}<br>
+                <strong>Instruction:</strong> ${p.instruction}<br>
+                <strong>Quote:</strong> ${p.quote}<br>
+                <strong>Date:</strong> ${p.date}<br>
+                <strong>Notes:</strong> ${p.notes || '-'}
+              `;
+              prescriptionsList.appendChild(div);
+            });
+          } else {
+            prescriptionsList.innerHTML = "No prescriptions found.";
+          }
+        });
+
+      // ✅ Fetch Reports
+      fetch(`http://127.0.0.1:5000/get-patient-reports?phone=${encodeURIComponent(phone)}`)
+        .then(res => res.json())
+        .then(data => {
+          reportsList.innerHTML = "";
+          if (data.reports && data.reports.length > 0) {
+            data.reports.forEach(link => {
+              const div = document.createElement("div");
+              div.className = "card";
+              div.innerHTML = `<a class="report-link" href="${link}" target="_blank">📥 Download Report</a>`;
+              reportsList.appendChild(div);
+            });
+          } else {
+            reportsList.innerHTML = "No reports found.";
+          }
+        });
+    });
+  </script>
+</body>
+</html>

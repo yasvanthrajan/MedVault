@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Doctor Dashboard – MedVault</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    h1 {
+      color: #008080;
+    }
+    .result-box {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+      background: #f8f8f8;
+    }
+    .prescription, .report {
+      margin-bottom: 10px;
+      padding: 8px;
+      background: #fff;
+      border-left: 4px solid #008080;
+    }
+    .report-button {
+      margin-top: 5px;
+      display: inline-block;
+      padding: 6px 12px;
+      background-color: #008080;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .report-button:hover {
+      background-color: #005f5f;
+    }
+    button {
+      margin-left: 10px;
+    }
+    .logout-btn {
+      float: right;
+      background-color: #c00;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .logout-btn:hover {
+      background-color: #a00;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    th {
+      background-color: #eee;
+    }
+    input[type="datetime-local"] {
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>
+    👨‍⚕️ Doctor Dashboard – Search Patient
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </h1>
+
+  <form id="searchForm">
+    <label>🔍 Enter Patient Name:</label>
+    <input type="text" id="query" required>
+    <button type="submit">Search</button>
+    <button type="button" id="clearButton">Clear</button>
+  </form>
+
+  <div id="results" class="result-box" style="display: none;">
+    <h2>📄 Reports:</h2>
+    <div id="reports"></div>
+
+    <h2>💊 Prescriptions:</h2>
+    <div id="prescriptions"></div>
+  </div>
+
+  <!-- ✅ Pending Appointments -->
+  <div class="result-box" id="appointmentsBox">
+    <h2>📅 Pending Appointments:</h2>
+    <table id="appointmentsTable">
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Phone</th>
+          <th>Date</th>
+          <th>Reason</th>
+          <th>Select Time</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS will insert rows here -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ✅ Appointment History -->
+  <div class="result-box" id="historyBox">
+    <h2>📜 Appointment History:</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <script>
+    // ✅ Session Check
+    fetch("http://127.0.0.1:5000/check-login")
+      .then(res => res.json())
+      .then(data => {
+        if (!data.logged_in) {
+          window.location.href = "login.html";
+        }
+      });
+
+    function logout() {
+      fetch("http://127.0.0.1:5000/logout", { method: "POST" })
+        .then(() => {
+          alert("Logged out successfully!");
+          window.location.href = "login.html";
+        });
+    }
+
+    // ✅ Search Patient Logic
+    const searchForm = document.getElementById("searchForm");
+    const clearButton = document.getElementById("clearButton");
+    const queryInput = document.getElementById("query");
+    const resultsBox = document.getElementById("results");
+    const reportsDiv = document.getElementById("reports");
+    const prescriptionsDiv = document.getElementById("prescriptions");
+
+    searchForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const query = queryInput.value;
+
+      fetch("http://127.0.0.1:5000/search-patient", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "query=" + encodeURIComponent(query),
+        credentials: "include"
+      })
+      .then(response => response.json())
+      .then(data => {
+        reportsDiv.innerHTML = "";
+        prescriptionsDiv.innerHTML = "";
+
+        if (data.reports && data.reports.length > 0) {
+          data.reports.forEach(link => {
+            const container = document.createElement("div");
+            container.className = "report";
+
+            const downloadBtn = document.createElement("a");
+            downloadBtn.href = link;
+            downloadBtn.target = "_blank";
+            downloadBtn.textContent = "Download Report";
+            downloadBtn.className = "report-button";
+
+            container.appendChild(downloadBtn);
+            reportsDiv.appendChild(container);
+          });
+        } else {
+          reportsDiv.textContent = "No reports found.";
+        }
+
+        if (data.prescriptions && data.prescriptions.length > 0) {
+          data.prescriptions.forEach(p => {
+            const div = document.createElement("div");
+            div.className = "prescription";
+            div.innerHTML = `
+              <strong>Patient:</strong> ${p.patient}<br>
+              <strong>Medicine:</strong> ${p.medicine}<br>
+              <strong>Instruction:</strong> ${p.instruction}<br>
+              <strong>Quote:</strong> ${p.quote}<br>
+              <strong>Date:</strong> ${p.date || 'N/A'}<br>
+              <strong>Notes:</strong> ${p.notes || '-'}
+            `;
+            prescriptionsDiv.appendChild(div);
+          });
+        } else {
+          prescriptionsDiv.textContent = "No prescriptions found.";
+        }
+
+        resultsBox.style.display = "block";
+      });
+    });
+
+    clearButton.addEventListener("click", function () {
+      queryInput.value = "";
+      resultsBox.style.display = "none";
+      reportsDiv.innerHTML = "";
+      prescriptionsDiv.innerHTML = "";
+    });
+
+    // ✅ Load Pending Appointments Table
+    fetch("http://127.0.0.1:5000/get-appointments")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#appointmentsTable tbody");
+
+        data.appointments.forEach((a, index) => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td>${a.name}</td>
+            <td>${a.phone}</td>
+            <td>${a.date}</td>
+            <td>${a.reason}</td>
+            <td>
+              <input type="datetime-local" id="confirmTime_${index}">
+            </td>
+            <td>
+              <button onclick="confirmAppointment(${index}, '${a.phone}', '${a.name}', ${a.id})">Confirm</button>
+            </td>
+          `;
+
+          tbody.appendChild(row);
+        });
+      });
+
+    // ✅ Confirm Appointment
+    function confirmAppointment(index, phone, name, appointmentId) {
+      const selectedTime = document.getElementById("confirmTime_" + index).value;
+
+      if (!selectedTime) {
+        alert("Please select appointment time first.");
+        return;
+      }
+
+      fetch("http://127.0.0.1:5000/confirm-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `appointment_id=${appointmentId}&patient_name=${encodeURIComponent(name)}&patient_phone=${encodeURIComponent(phone)}&confirmed_time=${encodeURIComponent(selectedTime)}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          const row = document.querySelector(`#confirmTime_${index}`).closest("tr");
+          if (row) row.remove();
+        } else if (data.error) {
+          alert("❌ " + data.error);
+        } else {
+          alert("❌ Unknown error.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error sending confirmation.");
+      });
+    }
+
+    // ✅ Load Appointment History
+    fetch("http://127.0.0.1:5000/get-confirmed-appointments")
+      .then(res => res.json())
+      .then(data => {
+        const section = document.getElementById("historyList");
+
+        if (data.history && data.history.length > 0) {
+          data.history.forEach(h => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+              ✅ <strong>${h.name}</strong> (${h.phone})<br>
+              <strong>Reason:</strong> ${h.reason}<br>
+              <strong>Confirmed at:</strong> ${h.confirmed_at}<br><hr>`;
+            section.appendChild(div);
+          });
+        } else {
+          section.innerHTML = "No confirmed appointments yet.";
+        }
+      });
+  </script>
+</body>
+</html>

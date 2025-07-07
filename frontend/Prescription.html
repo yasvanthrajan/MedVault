@@ -1,0 +1,10 @@
+<h2>Send Prescription</h2>
+<form action="http://127.0.0.1:5000/send-prescription" method="post">
+  <input name="patient_name" placeholder="Patient Name" required><br>
+  <input name="phone" placeholder="Patient Phone (e.g. +919876543210)" required><br> <!-- NEW -->
+  <input name="medicine" placeholder="Medicine" required><br>
+  <input name="instruction" placeholder="Instruction" required><br>
+  <input name="quote" placeholder="Motivational Quote"><br>
+  <textarea name="notes" placeholder="Additional Notes (optional)"></textarea><br>
+  <button type="submit">Send Prescription</button>
+</form>

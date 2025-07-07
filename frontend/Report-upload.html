@@ -1,0 +1,8 @@
+<h2>Upload Medical Report</h2>
+<form action="http://localhost:5000/upload-report" method="POST" enctype="multipart/form-data">
+  <input type="text" name="patient_name" placeholder="Patient Name" required><br>
+  <input type="text" name="phone" placeholder="Patient Phone (e.g. +919876543210)" required><br> <!-- NEW -->
+  <input type="text" name="report_type" placeholder="Report Type (e.g., ECG)" required><br>
+  <input type="file" name="report_file" required><br>
+  <button type="submit">Upload</button>
+</form>
