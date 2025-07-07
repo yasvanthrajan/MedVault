@@ -22,6 +22,10 @@ load_dotenv()
 # ✅ Secret key for session
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "supersecretkey")
 
+
+# Secret key for session
+app.secret_key = 'medvault_patient_secret'
+
 # ✅ CORS setup
 CORS(app, supports_credentials=True)
 
@@ -339,6 +343,27 @@ def get_patient_reports():
         return jsonify({"reports": reports})
     except Exception as e:
         return jsonify({"error": "Failed to fetch"}), 500
+@app.route('/patient-login', methods=['GET', 'POST'])
+def patient_login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        # Dummy check — replace with DB fetch in production
+        if username == '7708010425' and password == 'patient123':
+            session['patient_logged_in'] = True
+            session['patient_username'] = username
+            return redirect(url_for('patient_dashboard'))
+        else:
+            return "Invalid credentials. Try again."
+    return render_template('patient_login.html')
+
+@app.route('/patient-dashboard')
+def patient_dashboard():
+    if not session.get('patient_logged_in'):
+        return redirect(url_for('patient_login'))
+    return f"Welcome Patient: {session['patient_username']}. Dashboard coming soon!"
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
