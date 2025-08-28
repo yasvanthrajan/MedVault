@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Send Prescription – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #4f46e5;      /* Vibrant indigo */
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;    /* Cyan */
+      --accent: #22c55e;       /* Emerald */
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --text: #334155;
+      --card-bg: #ffffff;
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --shadow-light: rgba(79, 70, 229, 0.07);
+      --shadow-md: rgba(79, 70, 229, 0.15);
+      --shadow-lg: rgba(79, 70, 229, 0.25);
+    }
+
+    /* Reset & base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+      background-image: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 90%),
+                      radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 90%);
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Container styling */
+    .container {
+      background: var(--card-bg);
+      border-radius: 20px;
+      padding: 48px 48px 40px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 10px 30px var(--shadow-md), 0 5px 15px var(--shadow-light);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--gradient);
+      border-radius: 20px 0 0 20px;
+      box-shadow: 0 0 15px var(--primary);
+      z-index: 1;
+    }
+
+    .container:hover {
+      box-shadow: 0 15px 40px var(--shadow-lg), 0 7px 20px var(--shadow-md);
+    }
+
+    /* Heading */
+    h1 {
+      color: var(--dark);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      margin-top: 0;
+      margin-bottom: 36px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      z-index: 2;
+      user-select: none;
+    }
+
+    h1::before {
+      content: "💊";
+      font-size: 36px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+      animation: pulseIcon 3.5s infinite ease-in-out;
+      display: inline-block;
+      transform-origin: center;
+    }
+
+    @keyframes pulseIcon {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(5deg); }
+    }
+
+    /* Form */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Form groups */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Labels with icons before text */
+    label {
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      user-select: none;
+    }
+
+    label[for="patient_name"]::before { content: "👤"; }
+    label[for="phone"]::before { content: "📱"; }
+    label[for="medicine"]::before { content: "💊"; }
+    label[for="instruction"]::before { content: "📝"; }
+    label[for="quote"]::before { content: "💬"; }
+    label[for="notes"]::before { content: "✏️"; }
+
+    label::before {
+      font-size: 20px;
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* Inputs and textarea */
+    input[type="text"], textarea {
+      padding: 16px 20px;
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      background: white;
+      transition: all 0.3s ease;
+      resize: vertical;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+      outline-offset: 2px;
+    }
+
+    textarea {
+      min-height: 110px;
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.5;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+      outline: none;
+      transform: translateY(-2px);
+      background: white;
+    }
+
+    input[type="text"]::placeholder, textarea::placeholder {
+      color: #94a3b8;
+    }
+
+    /* Phone input container */
+    .phone-input-container {
+      display: flex;
+      width: 100%;
+    }
+
+    .country-code-select {
+      width: 120px;
+      padding: 16px 12px;
+      border: 2px solid #e2e8f0;
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+      background: white;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%234f46e5' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 6h12L8 12z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    .phone-number-input {
+      flex: 1;
+      border-radius: 0 12px 12px 0;
+      padding: 16px 20px;
+      border: 2px solid #e2e8f0;
+      font-family: 'Poppins', sans-serif;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .phone-number-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+      outline: none;
+      transform: translateY(-2px);
+    }
+
+    /* Submit button */
+    button[type="submit"] {
+      padding: 18px 0;
+      font-size: 18px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: var(--gradient);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 8px 20px var(--shadow-md), 0 5px 12px var(--shadow-light);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Poppins', sans-serif;
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.4px;
+    }
+
+    button[type="submit"]::before {
+      content: "📤";
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    button[type="submit"]:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 32px var(--shadow-lg), 0 8px 18px var(--shadow-md);
+    }
+
+    button[type="submit"]:active {
+      transform: translateY(0) scale(1);
+    }
+
+    /* Back link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 38px;
+      color: var(--primary);
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(79, 70, 229, 0.3);
+      transition: all 0.3s ease;
+      user-select: none;
+      max-width: fit-content;
+    }
+
+    .back-link:hover {
+      background: rgba(79, 70, 229, 0.07);
+      border-color: rgba(79, 70, 229, 0.7);
+      transform: translateY(-3px);
+    }
+
+    /* Medical decorative elements */
+    .medical-decoration {
+      position: fixed;
+      z-index: -1;
+      opacity: 0.03;
+      font-size: 320px;
+      animation: float 15s infinite ease-in-out;
+      user-select: none;
+      pointer-events: none;
+      color: var(--primary);
+      top: 100px;
+      right: -120px;
+    }
+
+    .pulse-icon {
+      left: -90px;
+      bottom: 160px;
+      color: var(--secondary);
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-22px) rotate(5deg); }
+    }
+
+    /* Overlay styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(248, 250, 252, 0.9);
+      backdrop-filter: blur(12px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .message-box {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 50px 40px;
+      width: 90%;
+      max-width: 520px;
+      box-shadow: 0 25px 60px var(--shadow-lg), 0 15px 35px var(--shadow-md);
+      text-align: center;
+      transform: translateY(30px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .message-box::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: var(--gradient);
+      box-shadow: 0 0 20px rgba(79, 70, 229, 0.4);
+    }
+
+    .overlay.active .message-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .success-animation {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .checkmark-circle {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #16a34a);
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.3);
+      animation: successPulse 0.8s ease-out;
+      position: relative;
+    }
+
+    .checkmark-circle::before {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.2);
+      animation: ripple 1.5s infinite;
+    }
+
+    .checkmark {
+      color: white;
+      font-size: 40px;
+      font-weight: bold;
+      animation: checkmarkPop 0.6s ease-out 0.3s both;
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(0); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes checkmarkPop {
+      0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+      80% { transform: scale(1.2) rotate(0deg); }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    .message-box h2 {
+      color: var(--dark);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 15px 0;
+      animation: slideUp 0.6s ease-out 0.4s both;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .message-box p {
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 35px;
+      animation: slideUp 0.6s ease-out 0.5s both;
+      font-weight: 400;
+    }
+
+    .prescription-details {
+      background: rgba(79, 70, 229, 0.05);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 25px 0;
+      border-left: 4px solid var(--primary);
+      animation: slideUp 0.6s ease-out 0.6s both;
+    }
+
+    .prescription-details .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .prescription-details .detail-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .prescription-details .detail-item .icon {
+      font-size: 16px;
+      width: 20px;
+    }
+
+    @keyframes slideUp {
+      0% { transform: translateY(20px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .close-btn {
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: var(--gradient);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 8px 20px var(--shadow-md);
+      animation: slideUp 0.6s ease-out 0.7s both;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .close-btn::before {
+      content: "🏠";
+      font-size: 18px;
+    }
+
+    .close-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px var(--shadow-lg);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: none;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(79, 70, 229, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin: 0 auto 30px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 500;
+      margin-top: 15px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .container {
+        margin: 20px;
+        padding: 32px 28px;
+        border-radius: 16px;
+      }
+      
+      h1 {
+        font-size: 26px;
+      }
+      
+      button[type="submit"] {
+        font-size: 16px;
+        padding: 16px 0;
+      }
+
+      .message-box {
+        padding: 40px 25px;
+        border-radius: 20px;
+      }
+
+      .message-box h2 {
+        font-size: 26px;
+      }
+
+      .checkmark-circle {
+        width: 75px;
+        height: 75px;
+      }
+
+      .checkmark {
+        font-size: 32px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 26px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      input[type="text"], textarea {
+        padding: 14px 16px;
+        font-size: 15px;
+      }
+      
+      button[type="submit"] {
+        padding: 14px 0;
+      }
+
+      .message-box {
+        padding: 35px 20px;
+      }
+
+      .message-box h2 {
+        font-size: 24px;
+      }
+
+      .checkmark-circle {
+        width: 65px;
+        height: 65px;
+      }
+
+      .checkmark {
+        font-size: 28px;
+      }
+
+      .country-code-select {
+        width: 100px;
+        padding: 14px 10px;
+        font-size: 14px;
+        background-position: right 8px center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background decorative elements -->
+  <div class="medical-decoration cross-icon">⚕️</div>
+  <div class="medical-decoration pulse-icon">💊</div>
+  
+  <!-- Overlay for messages -->
+  <div class="overlay" id="overlay">
+    <div class="message-box">
+      <div class="spinner" id="spinner"></div>
+      <div class="loading-text" id="loading-text" style="display: none;">Sending prescription...</div>
+      <div id="message-content">
+        <div class="success-animation">
+          <div class="checkmark-circle">
+            <div class="checkmark">✓</div>
+          </div>
+        </div>
+        <h2>Prescription Sent Successfully!</h2>
+        <p>Your prescription has been delivered to the patient. They will receive it shortly via SMS with all the details you provided.</p>
+        <div class="prescription-details">
+          <div class="detail-item">
+            <span class="icon">📱</span>
+            <span>SMS notification sent</span>
+          </div>
+          <div class="detail-item">
+            <span class="icon">🕐</span>
+            <span>Delivered within seconds</span>
+          </div>
+          <div class="detail-item">
+            <span class="icon">✅</span>
+            <span>Prescription logged in system</span>
+          </div>
+        </div>
+        <button class="close-btn" id="close-btn">Back to Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Send Prescription</h1>
+    <form id="prescriptionForm" action="/send-prescription" method="POST" novalidate>
+      <div class="form-group">
+        <label for="patient_name">Patient Name:</label>
+        <input type="text" name="patient_name" id="patient_name" required placeholder="Enter patient's full name" autocomplete="name" />
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <div class="phone-input-container">
+          <select class="country-code-select" id="countryCode" name="countryCode">
+            <option value="+1">USA (+1)</option>
+            <option value="+91" selected>India (+91)</option>
+            <option value="+44">UK (+44)</option>
+            <option value="+49">Germany (+49)</option>
+            <option value="+33">France (+33)</option>
+            <option value="+55">Brazil (+55)</option>
+            <option value="+52">Mexico (+52)</option>
+            <option value="+7">Russia (+7)</option>
+          </select>
+          <input type="text" class="phone-number-input" name="phone" id="phone" placeholder="XXXXXXXXXX" required autocomplete="tel" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="medicine">Medicine Name:</label>
+        <input type="text" name="medicine" id="medicine" required placeholder="Enter medicine name" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="instruction">Instruction:</label>
+        <input type="text" name="instruction" id="instruction" required placeholder="E.g., Take 1 tablet after food" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="quote">Motivational Quote:</label>
+        <textarea name="quote" id="quote" placeholder="Leave empty to auto-generate a motivational message" autocomplete="off"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="notes">Additional Notes:</label>
+        <textarea name="notes" id="notes" placeholder="Any special instructions or comments" autocomplete="off"></textarea>
+      </div>
+      <button type="submit">Send Prescription</button>
+    </form>
+    <a href="doctor_main_dashboard_.html" class="back-link" aria-label="Back to dashboard">
+      <span aria-hidden="true">←</span> Back to Dashboard
+    </a>
+  </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('prescriptionForm');
+    const overlay = document.getElementById('overlay');
+    const spinner = document.getElementById('spinner');
+    const loadingText = document.getElementById('loading-text');
+    const messageContent = document.getElementById('message-content');
+    const closeBtn = document.getElementById('close-btn');
+    const countryCodeSelect = document.getElementById('countryCode');
+    const phoneInput = document.getElementById('phone');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Collect form data
+      const formData = new FormData(form);
+      
+      // Combine country code and phone number
+      const fullPhoneNumber = countryCodeSelect.value + phoneInput.value;
+      formData.set('phone', fullPhoneNumber);
+
+      // Basic validation (check if required fields are filled)
+      const requiredFields = ['patient_name', 'phone', 'medicine', 'instruction'];
+      for (const field of requiredFields) {
+        if (!formData.get(field).trim()) {
+          alert(`❌ Please fill out the '${field.replace('_', ' ')}' field.`);
+          return;
+        }
+      }
+
+      // Show overlay and spinner
+      overlay.classList.add('active');
+      spinner.style.display = 'block';
+      loadingText.style.display = 'block';
+      messageContent.style.display = 'none';
+
+      // Submit using fetch to backend
+      fetch('/send-prescription', {
+        method: 'POST',
+        body: formData,
+      })
+      .then(response => {
+        spinner.style.display = 'none';
+        loadingText.style.display = 'none';
+
+        if (response.ok) {
+          // Show success message
+          messageContent.style.display = 'block';
+        } else {
+          return response.text().then(text => {
+            overlay.classList.remove('active');
+            alert("❌ Error: " + text);
+          });
+        }
+      })
+      .catch(error => {
+        spinner.style.display = 'none';
+        loadingText.style.display = 'none';
+        overlay.classList.remove('active');
+        alert("❌ Network Error: " + error.message);
+      });
+    });
+
+    closeBtn.addEventListener('click', function () {
+      overlay.classList.remove('active');
+      window.location.href = "doctor_main_dashboard.html";
+    });
+  });
+</script>
+
+</body>
+</html>

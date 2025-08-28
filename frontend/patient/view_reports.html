@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Reports – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.15) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.15) 0%, transparent 90%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    h1 {
+      color: #065f46;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .report-list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .report {
+      background: white;
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .report:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .report p {
+      margin: 8px 0;
+      color: #475569;
+    }
+
+    .report strong {
+      color: #065f46;
+      font-weight: 500;
+      min-width: 100px;
+      display: inline-block;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #0d9b6e, #2bbf8a);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .status {
+      padding: 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .status.success {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .status.info {
+      background-color: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 20px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .report {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>📄</span> Your Medical Reports</h1>
+    
+    <div id="reportList" class="report-list"></div>
+    
+    <div id="status" class="status info">
+      Loading your medical reports...
+    </div>
+    
+    <a href="patient-dashboard.html" class="back-btn">
+      <span>←</span> Back to Dashboard
+    </a>
+  </div>
+
+<script>
+  const reportList = document.getElementById("reportList");
+  const status = document.getElementById("status");
+
+  fetch("http://localhost:5000/get-patient-reports", {
+    credentials: "include"
+  })
+  .then(res => res.json())
+  .then(data => {
+    console.log("📦 Response from /get-patient-reports:", data);
+
+    if (data.reports && data.reports.length > 0) {
+      status.style.display = "none";
+      data.reports.forEach(report => {
+        const div = document.createElement("div");
+        div.className = "report";
+        div.innerHTML = `
+          <p><strong>Report Type:</strong> ${report.type}</p>
+          <p><strong>Date:</strong> ${report.date_time}</p>
+          <a class="btn" href="${report.url}" target="_blank">
+            <span>🔍</span> View Full Report
+          </a>
+        `;
+        reportList.appendChild(div);
+      });
+    } else {
+      status.textContent = "📭 You don't have any medical reports yet.";
+      status.className = "status info";
+    }
+  })
+  .catch(error => {
+    console.error("❌ Fetch Error:", error);
+    status.textContent = "⚠️ Failed to load reports. Try again.";
+    status.className = "status warning";
+  });
+</script>
+
+
+
+
+</body>
+</html>

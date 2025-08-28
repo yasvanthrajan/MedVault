@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Upload Report – MedVault</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(115deg, #e2f1fc 0%, #f9faff 100%);
+      font-family: 'Roboto', Arial, sans-serif;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 420px;
+      margin: 60px auto;
+      padding: 40px 28px 36px 28px;
+      border-radius: 24px;
+      background: rgba(244, 251, 255, 0.84);
+      box-shadow: 0 16px 32px rgba(0,128,255,.08), 0 1.5px 4px rgba(0,0,0,0.03);
+      backdrop-filter: blur(2px);
+      text-align: center;
+      position: relative;
+    }
+    h1 {
+      color: #0077cc;
+      margin-bottom: 14px;
+      font-size: 2.2em;
+      letter-spacing: -.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      user-select: none;
+    }
+    .drag-area {
+      border: 2.2px dashed #b1daf7;
+      background: rgba(200, 226, 255, 0.13);
+      border-radius: 14px;
+      padding: 30px 10px 18px 10px;
+      cursor: pointer;
+      margin-bottom: 22px;
+      transition: border-color 0.15s;
+      position: relative;
+    }
+    .drag-area.dragover {
+      border-color: #0077cc;
+      background: #e2f4ff;
+    }
+    .drag-area input[type="file"] {
+      display: none;
+    }
+    .dragicon {
+      font-size: 2.5em;
+      color: #61afe6;
+      margin-bottom: 4px;
+      opacity: .96;
+    }
+    .drag-title {
+      font-size: 1.10em;
+      color: #333;
+      font-weight: 500;
+    }
+    .form-group {
+      margin-bottom: 0;
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-bottom: 11px;
+      font-weight: bold;
+      color: #1270b5;
+      letter-spacing: .04em;
+      font-size: 1em;
+    }
+    .filename-preview {
+      margin: 8px 0 0 0;
+      font-size: .95em;
+      color: #2d7f95;
+      word-break: break-all;
+      font-weight: 500;
+    }
+    button[type="submit"] {
+      background: linear-gradient(91deg,#0098e2 60%, #0077cc 100%);
+      color: white;
+      padding: 13px 31px;
+      border: none;
+      border-radius: 9px;
+      font-size: 1.13em;
+      font-weight: 700;
+      letter-spacing: .05em;
+      margin-top: 14px;
+      transition: background .14s, box-shadow .14s, transform .11s;
+      box-shadow: 0 3px 6px #0077cc11;
+      cursor: pointer;
+      will-change: transform;
+      outline: none;
+      position: relative;
+      z-index: 1;
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(93deg,#005fa3 60%, #0077cc 100%);
+      transform: scale(1.03) translateY(-2.5px);
+      box-shadow: 0 10px 22px -5px #99d3f4c6;
+    }
+    .status {
+      margin-top: 26px;
+      font-weight: bold;
+      font-size: 1.13em;
+      min-height: 33px;
+      letter-spacing: .01em;
+      transition: color 0.14s;
+    }
+    .status:empty {
+      margin: 0; min-height: 0;
+    }
+
+    /* DROPDOWN STYLES */
+    .styled-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .styled-select select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1.6px solid #b1daf7;
+      border-radius: 8px;
+      background: #f0f9ff;
+      font-size: 15px;
+      color: #005fa3;
+      appearance: none; /* Remove default browser dropdown arrow */
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .styled-select select:focus {
+      border-color: #0077cc;
+      box-shadow: 0 0 0 3px rgba(0, 119, 204, 0.2);
+    }
+
+    .styled-select::after {
+      content: '▼'; /* Custom arrow */
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #0077cc;
+      font-size: 0.8em;
+      pointer-events: none; /* Allow clicks to pass through to the select */
+      transition: transform 0.2s;
+    }
+
+    .styled-select select:focus + .styled-select::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* LOADING OVERLAY */
+    #loadingOverlay {
+      position: fixed;
+      z-index: 9999;
+      top:0; left:0; width:100vw; height:100vh;
+      background: rgba(241,249,255,0.94);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity .14s;
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    #loadingOverlay.active {
+      opacity: 1;
+      pointer-events: all;
+      visibility: visible;
+    }
+    .loader {
+      width: 54px; height: 54px;
+      border: 6px solid #b8e4ff;
+      border-top: 6px solid #0077cc;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 11px auto;
+      display: block;
+    }
+    @keyframes spin {
+      100% { transform: rotate(360deg);}
+    }
+    .loader-text {
+      color: #257bb7;
+      font-size: 1.13em;
+      font-weight: 500;
+      text-align: center;
+      letter-spacing: .01em;
+      margin-top:9px;
+      opacity:.91;
+      text-shadow:0 1px 0 #fff9;
+    }
+    @media (max-width: 560px){
+      .container { max-width:98vw;padding:25px 2vw;}
+      h1 {font-size:1.32em;border-radius:7px;}
+      .drag-area{padding:18px 2vw;}
+      button[type="submit"]{padding:12px 19px;}
+    }
+  </style>
+</head>
+<body>
+  <div id="loadingOverlay">
+    <div>
+      <div class="loader"></div>
+      <div class="loader-text">Uploading & Processing...</div>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>📤 Upload Medical Report</h1>
+    <form id="uploadForm" enctype="multipart/form-data" autocomplete="off">
+      <div class="form-group">
+        <label for="report">Choose PDF/Image Report:</label>
+        <div class="drag-area" id="dragArea">
+          <center><div class="dragicon">⬆️</div></center>
+          <center><div class="drag-title" id="dragTitle">Drag & Drop file here or <span style="color:#0077cc;text-decoration:underline;cursor:pointer;">Browse</span></div></center>
+          <input type="file" id="report" name="report" accept=".pdf,.jpg,.jpeg,.png" required>
+          <div class="filename-preview" id="filenamePreview"></div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 20px;">
+        <label for="report_type">Select Report Type:</label>
+        <div class="styled-select">
+          <select id="report_type" name="report_type" required>
+            <option value="">-- Choose Type --</option>
+            <option value="Blood">🩸 Blood Report</option>
+            <option value="MRI">🧠 MRI Scan</option>
+            <option value="XRay">🦴 X-Ray</option>
+            <option value="Prescription">💊 Prescription</option>
+            <option value="General">📝 General Checkup</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit">Upload Report</button>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script>
+  // UI: Drag & Drop + file preview
+  const dragArea = document.getElementById('dragArea');
+  const fileInput = document.getElementById('report');
+  const dragTitle = document.getElementById('dragTitle');
+  const filenamePreview = document.getElementById('filenamePreview');
+
+  dragArea.addEventListener('click', () => fileInput.click());
+  dragArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dragArea.classList.add('dragover');
+  });
+  dragArea.addEventListener('dragleave', () => dragArea.classList.remove('dragover'));
+  dragArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dragArea.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      fileInput.files = e.dataTransfer.files;
+      fireChange();
+    }
+  });
+  fileInput.addEventListener('change', fireChange);
+  function fireChange() {
+    if (fileInput.files && fileInput.files[0]) {
+      filenamePreview.textContent = "💾 " + fileInput.files[0].name;
+      dragTitle.style.opacity = ".4";
+    } else {
+      filenamePreview.textContent = "";
+      dragTitle.style.opacity = "1";
+    }
+  }
+
+  // Loading overlay
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  const form = document.getElementById("uploadForm");
+  const statusDiv = document.getElementById("status");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    loadingOverlay.classList.add('active');
+    statusDiv.textContent = "";
+
+    const formData = new FormData(form);
+
+    // Add hidden data from localStorage
+
+    const reportType = document.getElementById("reportType")?.value || "General";
+    formData.append("report_type", reportType);
+
+
+    // Send to backend
+   fetch("http://localhost:5000/upload-report", {
+    method: "POST",
+    body: formData,
+    credentials: "include"
+  })
+
+    .then(res => res.json())
+    .then(data => {
+      loadingOverlay.classList.remove('active');
+      if (data.success) {
+        statusDiv.innerText = "✅ Report uploaded successfully!";
+        form.reset();
+        filenamePreview.textContent = "";
+        dragTitle.style.opacity = "1";
+      } else {
+        statusDiv.innerText = "❌ Failed to upload report.";
+      }
+    })
+    .catch(() => {
+      loadingOverlay.classList.remove('active');
+      statusDiv.innerText = "⚠️ Server error. Try again later.";
+    });
+  });
+  </script>
+
+</body>
+</html>

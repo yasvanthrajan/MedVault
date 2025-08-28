@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Patient – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --secondary: #0ea5e9;
+      --accent: #10b981;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --lighter: #ffffff;
+      --dark: #0f172a;
+      --text: #334155;
+      --text-light: #64748b;
+      --text-muted: #94a3b8;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --border-light: #f1f5f9;
+      --gradient-primary: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+      --gradient-success: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+      --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-primary: 0 8px 25px -8px rgba(37, 99, 235, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: var(--text);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background decorations */
+    .bg-decoration {
+      position: fixed;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-circle-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.03) 0%, transparent 70%);
+      border-radius: 50%;
+      top: -200px;
+      right: -200px;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .bg-circle-2 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      bottom: -150px;
+      left: -150px;
+      animation: float 25s infinite ease-in-out reverse;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+
+    /* Main container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem;
+      background: var(--card-bg);
+      border-radius: 2rem;
+      box-shadow: var(--shadow-xl);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      animation: slideUp 0.8s ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient-primary);
+      border-radius: 2rem 2rem 0 0;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .header h1 {
+      color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 5vw, 2.5rem);
+      margin: 0.5rem 0;
+      background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .search-icon {
+      font-size: 3rem;
+      animation: pulse-gentle 3s infinite ease-in-out;
+      filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.2));
+      display: block;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes pulse-gentle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .subtitle {
+      color: var(--text-light);
+      font-size: 1.125rem;
+      font-weight: 400;
+      margin: 0;
+      letter-spacing: 0.01em;
+    }
+
+    /* Search form */
+    .search-section {
+      background: var(--gradient-card);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin-bottom: 2.5rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: stretch;
+      justify-content: center;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .input-group {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      border-radius: 1rem;
+      border: 2px solid var(--border);
+      font-size: 1rem;
+      font-weight: 500;
+      background: var(--lighter);
+      color: var(--text);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: var(--shadow-sm);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md), 0 0 0 3px rgba(37, 99, 235, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 1rem 1.5rem;
+      border: none;
+      border-radius: 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .search-btn {
+      background: var(--gradient-primary);
+      color: white;
+    }
+
+    .search-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg), var(--shadow-primary);
+    }
+
+    .search-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .clear-btn {
+      background: linear-gradient(135deg, var(--text-light) 0%, var(--text-muted) 100%);
+      color: white;
+    }
+
+    .clear-btn:hover {
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-light) 100%);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Results section */
+    #results {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section {
+      margin-bottom: 2.5rem;
+    }
+
+    .section h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border-light);
+    }
+
+    .section-icon {
+      font-size: 1.75rem;
+      filter: drop-shadow(0 1px 2px rgba(37, 99, 235, 0.2));
+    }
+
+    /* Report cards */
+    .report {
+      padding: 1.5rem;
+      background: var(--gradient-card);
+      border-radius: 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--gradient-primary);
+    }
+
+    .report:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .report-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--gradient-success);
+      color: white;
+      text-decoration: none;
+      border-radius: 0.875rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: var(--shadow-md);
+    }
+
+    .report-button:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg), 0 8px 25px -8px rgba(16, 185, 129, 0.4);
+      text-decoration: none;
+    }
+
+    /* Prescription cards */
+    .prescription {
+      padding: 1.5rem;
+      background: var(--gradient-card);
+      border-radius: 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .prescription::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--success) 100%);
+    }
+
+    .prescription:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .prescription-field {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 0.75rem;
+      padding: 0.5rem 0;
+    }
+
+    .prescription-field:last-child {
+      margin-bottom: 0;
+    }
+
+    .prescription-label {
+      font-weight: 600;
+      color: var(--dark);
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .prescription-value {
+      color: var(--text);
+      flex: 1;
+      font-weight: 500;
+    }
+
+    /* No results */
+    .no-results {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-muted);
+      font-style: italic;
+      background: var(--border-light);
+      border-radius: 1.25rem;
+      border: 2px dashed var(--border);
+      font-size: 1rem;
+    }
+
+    .no-results-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+
+      .container {
+        padding: 1.5rem;
+        border-radius: 1.5rem;
+      }
+
+      .search-section {
+        padding: 1.5rem;
+      }
+
+      form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .input-group {
+        min-width: auto;
+      }
+
+      .button-group {
+        justify-content: center;
+      }
+
+      button {
+        flex: 1;
+        min-width: auto;
+      }
+
+      .prescription-field {
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .prescription-label {
+        min-width: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 0.5rem;
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.75rem;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .search-icon {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background decorations -->
+  <div class="bg-decoration bg-circle-1"></div>
+  <div class="bg-decoration bg-circle-2"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="search-icon">🔍</div>
+      <h1>Search Patient Records</h1>
+      <p class="subtitle">Find medical reports and prescriptions</p>
+    </div>
+
+    <!-- Search section -->
+    <div class="search-section">
+      <form id="searchForm">
+        <div class="input-group">
+          <input type="text" id="query" required placeholder="Enter patient name or ID..." />
+        </div>
+        <div class="button-group">
+          <button type="submit" class="search-btn" id="searchButton">
+            <span id="searchIcon">🔎</span>
+            <span id="searchText">Search</span>
+          </button>
+          <button type="button" class="clear-btn" id="clearButton">
+            🗑️ Clear
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Results section -->
+    <div id="results" style="display: none;">
+      <div class="section">
+        <h2>
+          <span class="section-icon">📄</span>
+          Medical Reports
+        </h2>
+        <div id="reports"></div>
+      </div>
+
+      <div class="section">
+        <h2>
+          <span class="section-icon">💊</span>
+          Prescriptions
+        </h2>
+        <div id="prescriptions"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const searchForm = document.getElementById("searchForm");
+    const queryInput = document.getElementById("query");
+    const resultsDiv = document.getElementById("results");
+    const reportsDiv = document.getElementById("reports");
+    const prescriptionsDiv = document.getElementById("prescriptions");
+    const clearButton = document.getElementById("clearButton");
+    const searchButton = document.getElementById("searchButton");
+    const searchIcon = document.getElementById("searchIcon");
+    const searchText = document.getElementById("searchText");
+
+    function setLoadingState(isLoading) {
+      if (isLoading) {
+        searchButton.disabled = true;
+        searchIcon.innerHTML = '<div class="spinner"></div>';
+        searchText.textContent = 'Searching...';
+        searchButton.style.opacity = '0.8';
+      } else {
+        searchButton.disabled = false;
+        searchIcon.innerHTML = '🔎';
+        searchText.textContent = 'Search';
+        searchButton.style.opacity = '1';
+      }
+    }
+
+    searchForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const query = queryInput.value;
+
+      setLoadingState(true);
+
+      fetch("http://localhost:5000/search-patient", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "query=" + encodeURIComponent(query),
+        credentials: "include"
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          reportsDiv.innerHTML = "";
+          prescriptionsDiv.innerHTML = "";
+
+          if (data.reports && data.reports.length > 0) {
+            data.reports.forEach((url) => {
+              const div = document.createElement("div");
+              div.className = "report";
+              div.innerHTML = `<a class="report-button" href="${url}" target="_blank">📥 Download Report</a>`;
+              reportsDiv.appendChild(div);
+            });
+          } else {
+            reportsDiv.innerHTML = `
+              <div class="no-results">
+                <div class="no-results-icon">📋</div>
+                <div>No medical reports found for this patient</div>
+              </div>
+            `;
+          }
+
+          if (data.prescriptions && data.prescriptions.length > 0) {
+            data.prescriptions.forEach((p) => {
+              const div = document.createElement("div");
+              div.className = "prescription";
+              div.innerHTML = `
+                <div class="prescription-field">
+                  <div class="prescription-label">👤 Patient:</div>
+                  <div class="prescription-value">${p.patient}</div>
+                </div>
+                <div class="prescription-field">
+                  <div class="prescription-label">💊 Medicine:</div>
+                  <div class="prescription-value">${p.medicine}</div>
+                </div>
+                <div class="prescription-field">
+                  <div class="prescription-label">📝 Instruction:</div>
+                  <div class="prescription-value">${p.instruction}</div>
+                </div>
+                <div class="prescription-field">
+                  <div class="prescription-label">🗓️ Date:</div>
+                  <div class="prescription-value">${p.date || 'N/A'}</div>
+                </div>
+                <div class="prescription-field">
+                  <div class="prescription-label">✏️ Notes:</div>
+                  <div class="prescription-value">${p.notes || 'No additional notes'}</div>
+                </div>
+              `;
+              prescriptionsDiv.appendChild(div);
+            });
+          } else {
+            prescriptionsDiv.innerHTML = `
+              <div class="no-results">
+                <div class="no-results-icon">💊</div>
+                <div>No prescriptions found for this patient</div>
+              </div>
+            `;
+          }
+
+          resultsDiv.style.display = "block";
+        })
+        .catch((err) => {
+          alert("❌ Search failed. Try again.");
+        })
+        .finally(() => {
+          setLoadingState(false);
+        });
+    });
+
+    clearButton.addEventListener("click", () => {
+      queryInput.value = "";
+      reportsDiv.innerHTML = "";
+      prescriptionsDiv.innerHTML = "";
+      resultsDiv.style.display = "none";
+    });
+  </script>
+</body>
+</html>

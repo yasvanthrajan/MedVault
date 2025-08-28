@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Email Verification – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f7fd;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%),
+        radial-gradient(circle at 90% 80%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+      padding: 40px;
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 119, 182, 0.1);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #0077b6, #00b4d8);
+    }
+
+    .header {
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: #0077b6;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    h1::before, h1::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #0077b6);
+    }
+
+    h1::after {
+      background: linear-gradient(90deg, #0077b6, transparent);
+    }
+
+    .subtitle {
+      color: #6c757d;
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .doctor-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #0077b6;
+      opacity: 0.9;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      color: #4a6fa5;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #caf0f8;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      color: #03045e;
+    }
+
+    input[type="text"]:focus, input[type="email"]:focus {
+      outline: none;
+      border-color: #0077b6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: white;
+      margin-top: 20px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="submit"]:hover {
+      background: linear-gradient(135deg, #0067a6, #00a4c8);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 180, 216, 0.3);
+    }
+
+    input[type="submit"]:active {
+      transform: translateY(0);
+    }
+
+    input[type="submit"]:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .mt-20 {
+      margin-top: 30px;
+      padding-top: 25px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .mt-20 a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 119, 182, 0.2);
+    }
+
+    .mt-20 a:hover {
+      background: rgba(0, 180, 216, 0.1);
+      border-color: rgba(0, 119, 182, 0.4);
+      text-decoration: none;
+    }
+
+    .auth-links {
+      margin-top: 20px;
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .auth-links a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.3s ease;
+    }
+
+    .auth-links a:hover {
+      color: #005b8c;
+      text-decoration: underline;
+    }
+
+    .input-container {
+      position: relative;
+    }
+
+    .input-container::after {
+      content: '🔒';
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      pointer-events: none;
+    }
+
+    .email-container::after {
+      content: '✉️';
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="doctor-icon">⚕️</div>
+      <h1>✅ Verify Doctor Email</h1>
+      <p class="subtitle">Enter the verification code sent to your email inbox.</p>
+    </div>
+
+    <form id="verifyForm">
+      <div class="form-group">
+        <label for="code">Verification Code</label>
+        <div class="input-container">
+          <input type="text" id="code" required placeholder="Enter verification code">
+        </div>
+      </div>
+
+      <input type="submit" value="Verify" id="submitBtn">
+      <span class="loading-spinner" id="loadingSpinner"></span>
+    </form>
+
+    <div class="auth-links">
+      Don't have an account? <a href="signup.html">Sign up</a>
+    </div>
+
+    <div class="mt-20">
+      <a href="../index.html">← Back to Home</a>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+
+    const form = document.getElementById("verifyForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const spinner = document.getElementById("loadingSpinner");
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const code = document.getElementById("code").value;
+
+      // Show loading state
+      spinner.style.display = 'block';
+      submitBtn.value = 'Verifying...';
+      submitBtn.disabled = true;
+
+      fetch("http://localhost:5000/cognito-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("✅ Verification successful! You can now log in.");
+          window.location.href = "/doctor/login.html";
+        } else {
+          alert("❌ Verification failed: " + data.message);
+        }
+      })
+      .finally(() => {
+        // Hide loading state
+        spinner.style.display = 'none';
+        submitBtn.value = 'Verify';
+        submitBtn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Generate Prescription PDF – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --text: #334155;
+      --card-bg: #ffffff;
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --gradient-soft: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(6, 182, 212, 0.1));
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 25px rgba(79, 70, 229, 0.15);
+      --shadow-xl: 0 12px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      margin: 0;
+      padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced background pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(34, 197, 94, 0.04) 0%, transparent 60%);
+      z-index: -2;
+      animation: backgroundShift 20s ease-in-out infinite;
+    }
+
+    @keyframes backgroundShift {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(0.5deg); }
+    }
+
+    .container {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 50px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: var(--shadow-xl);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(20px);
+      animation: containerEntrance 0.8s ease-out;
+    }
+
+    @keyframes containerEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Animated gradient border */
+    .container::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--gradient);
+      border-radius: 24px 0 0 24px;
+    }
+
+    .container::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), var(--primary-light), var(--secondary), var(--accent));
+      background-size: 200% 100%;
+      animation: gradientFlow 3s ease-in-out infinite;
+      border-radius: 24px 24px 0 0;
+    }
+
+    @keyframes gradientFlow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    h2 {
+      color: var(--dark);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      margin-top: 0;
+      margin-bottom: 35px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    h2::before {
+      content: "📄";
+      font-size: 40px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(3deg); }
+    }
+
+    h2::after {
+      content: "";
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      margin-left: 20px;
+      border-radius: 1px;
+    }
+
+    .form-box {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .form-group {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 5px;
+      transition: all 0.3s ease;
+    }
+
+    input[type="text"] {
+      padding: 18px 20px;
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: white;
+      font-size: 16px;
+      position: relative;
+      box-shadow: var(--shadow-sm);
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), var(--shadow-md);
+      transform: translateY(-2px);
+      background: white;
+    }
+
+    input[type="text"]:focus + .input-highlight {
+      transform: scaleX(1);
+    }
+
+    .input-highlight {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+      border-radius: 0 0 12px 12px;
+    }
+
+    input[type="text"]::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    /* Enhanced input states */
+    input[type="text"]:hover {
+      border-color: var(--primary-light);
+      box-shadow: var(--shadow-md);
+    }
+
+    input[type="text"]:valid {
+      border-color: var(--accent);
+    }
+
+    button {
+      padding: 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 14px;
+      background: var(--gradient);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: var(--shadow-lg);
+      margin-top: 15px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.5px;
+    }
+
+    button::before {
+      content: "📥";
+      font-size: 20px;
+      transition: all 0.3s ease;
+    }
+
+    /* Button shine effect */
+    button::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.6s ease;
+    }
+
+    button:hover::after {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: var(--shadow-xl);
+    }
+
+    button:hover::before {
+      animation: downloadBounce 0.6s ease;
+    }
+
+    @keyframes downloadBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    button:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    /* Loading state */
+    button.loading {
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    button.loading::before {
+      content: "";
+      width: 20px;
+      height: 20px;
+      border: 2px solid transparent;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Enhanced medical decorative elements */
+    .medical-decoration {
+      position: fixed;
+      z-index: -1;
+      opacity: 0.04;
+      font-size: 400px;
+      animation: floatAdvanced 25s infinite ease-in-out;
+      filter: blur(1px);
+    }
+
+    .cross-icon {
+      right: -150px;
+      top: 50px;
+      color: var(--primary);
+      animation-delay: 0s;
+    }
+
+    .pulse-icon {
+      left: -120px;
+      bottom: 100px;
+      color: var(--secondary);
+      animation-delay: 8s;
+    }
+
+    .heart-icon {
+      right: -80px;
+      bottom: 200px;
+      font-size: 350px;
+      color: var(--accent);
+      animation-delay: 15s;
+    }
+
+    @keyframes floatAdvanced {
+      0%, 100% { 
+        transform: translateY(0) rotate(0deg) scale(1); 
+        opacity: 0.04;
+      }
+      25% { 
+        transform: translateY(-40px) rotate(5deg) scale(1.05); 
+        opacity: 0.06;
+      }
+      50% { 
+        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
+        opacity: 0.05;
+      }
+      75% { 
+        transform: translateY(-50px) rotate(8deg) scale(1.02); 
+        opacity: 0.07;
+      }
+    }
+
+    /* Form validation styles */
+    .form-group.error input[type="text"] {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+    }
+
+    .form-group.success input[type="text"] {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 14px;
+      margin-top: 4px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .error-message.show {
+      opacity: 1;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+
+      .container {
+        padding: 40px 35px;
+        border-radius: 20px;
+      }
+
+      h2 {
+        font-size: 28px;
+      }
+
+      h2::before {
+        font-size: 36px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 30px 25px;
+        border-radius: 18px;
+      }
+
+      h2 {
+        font-size: 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      h2::after {
+        display: none;
+      }
+
+      h2::before {
+        font-size: 32px;
+      }
+
+      input[type="text"] {
+        padding: 16px 18px;
+        font-size: 15px;
+      }
+
+      button {
+        padding: 18px;
+        font-size: 16px;
+      }
+
+      .form-box {
+        gap: 22px;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--light);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Focus indicators for accessibility */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+      position: relative;
+      display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 200px;
+      background-color: var(--dark);
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      padding: 8px 12px;
+      position: absolute;
+      z-index: 1;
+      bottom: 125%;
+      left: 50%;
+      margin-left: -100px;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 14px;
+      font-weight: 400;
+    }
+
+    .tooltip .tooltiptext::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -5px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: var(--dark) transparent transparent transparent;
+    }
+
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced background decorative elements -->
+  <div class="medical-decoration cross-icon">⚕️</div>
+  <div class="medical-decoration pulse-icon">💊</div>
+  <div class="medical-decoration heart-icon">💚</div>
+
+  <div class="container">
+    <h2>Generate Prescription PDF</h2>
+
+    <form action="http://127.0.0.1:5000/generate-prescription-pdf" method="POST" target="_blank" class="form-box" id="prescriptionForm">
+      <div class="form-group">
+        <label for="patient_name">👤 Patient Name:</label>
+        <input type="text" name="patient_name" id="patient_name" required placeholder="Enter patient's full name" autocomplete="name">
+        <div class="input-highlight"></div>
+        <div class="error-message" id="patient_name_error">Please enter a valid patient name</div>
+      </div>
+
+      <div class="form-group">
+        <label for="medicine">💊 Medicine:</label>
+        <input type="text" name="medicine" id="medicine" required placeholder="Enter medicine name and dosage" autocomplete="off">
+        <div class="input-highlight"></div>
+        <div class="error-message" id="medicine_error">Please enter the medicine name</div>
+      </div>
+
+      <div class="form-group">
+        <label for="instruction">📝 Instruction:</label>
+        <input type="text" name="instruction" id="instruction" required placeholder="Dosage and frequency (e.g., Take 1 tablet twice daily)" autocomplete="off">
+        <div class="input-highlight"></div>
+        <div class="error-message" id="instruction_error">Please provide clear instructions</div>
+      </div>
+
+      <div class="form-group">
+        <label for="quote" class="tooltip">💬 Motivational Quote (optional):
+          <span class="tooltiptext">Add a personalized message to motivate your patient's recovery</span>
+        </label>
+        <input type="text" name="quote" id="quote" placeholder="E.g., Stay strong and get well soon! Your health is your wealth." autocomplete="off">
+        <div class="input-highlight"></div>
+      </div>
+
+      <button type="submit" id="generateBtn">Generate & Download PDF</button>
+    </form>
+  </div>
+
+  <script>
+    // Enhanced form handling with validation and animations
+    const form = document.getElementById('prescriptionForm');
+    const generateBtn = document.getElementById('generateBtn');
+    const inputs = form.querySelectorAll('input[required]');
+
+    // Real-time validation
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        validateField(this);
+        updateButtonState();
+      });
+
+      input.addEventListener('blur', function() {
+        validateField(this);
+      });
+
+      // Enhanced focus effects
+      input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+      });
+
+      input.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+      });
+    });
+
+    function validateField(field) {
+      const formGroup = field.parentElement;
+      const errorMsg = formGroup.querySelector('.error-message');
+      
+      formGroup.classList.remove('error', 'success');
+      errorMsg.classList.remove('show');
+
+      if (field.hasAttribute('required') && field.value.trim() === '') {
+        formGroup.classList.add('error');
+        errorMsg.classList.add('show');
+        return false;
+      } else if (field.value.trim() !== '') {
+        formGroup.classList.add('success');
+        return true;
+      }
+      
+      return true;
+    }
+
+    function updateButtonState() {
+      const isValid = Array.from(inputs).every(input => input.value.trim() !== '');
+      
+      if (isValid) {
+        generateBtn.style.opacity = '1';
+        generateBtn.style.pointerEvents = 'auto';
+        generateBtn.style.transform = 'scale(1)';
+      } else {
+        generateBtn.style.opacity = '0.6';
+        generateBtn.style.pointerEvents = 'none';
+        generateBtn.style.transform = 'scale(0.98)';
+      }
+    }
+
+    // Form submission handling
+    form.addEventListener('submit', function(e) {
+      let isValid = true;
+      
+      inputs.forEach(input => {
+        if (!validateField(input)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        return;
+      }
+
+      // Show loading state
+      generateBtn.classList.add('loading');
+      generateBtn.innerHTML = 'Generating PDF...';
+      
+      // Reset button after a delay (assuming PDF generation takes some time)
+      setTimeout(() => {
+        generateBtn.classList.remove('loading');
+        generateBtn.innerHTML = '📥 Generate & Download PDF';
+        
+        // Show success message
+        showSuccessMessage();
+      }, 3000);
+    });
+
+    function showSuccessMessage() {
+      // Create temporary success message
+      const successMsg = document.createElement('div');
+      successMsg.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, var(--accent), #16a34a);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 12px;
+        box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+        font-weight: 600;
+        z-index: 1000;
+        animation: slideInRight 0.5s ease-out;
+      `;
+      successMsg.innerHTML = '✅ PDF generated successfully!';
+      document.body.appendChild(successMsg);
+
+      // Remove message after 4 seconds
+      setTimeout(() => {
+        successMsg.style.animation = 'slideOutRight 0.5s ease-in';
+        setTimeout(() => {
+          document.body.removeChild(successMsg);
+        }, 500);
+      }, 4000);
+    }
+
+    // Add slide animations
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+      }
+      .focused {
+        transform: scale(1.01);
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize button state
+    updateButtonState();
+
+    // Add smooth scroll behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+
+    // Enhanced input placeholders animation
+    inputs.forEach(input => {
+      const originalPlaceholder = input.placeholder;
+      let placeholderInterval;
+
+      input.addEventListener('focus', function() {
+        clearInterval(placeholderInterval);
+        this.placeholder = originalPlaceholder;
+      });
+
+      input.addEventListener('blur', function() {
+        if (this.value.trim() === '') {
+          // Animate placeholder
+          const placeholders = [
+            originalPlaceholder,
+            originalPlaceholder.replace(/\./g, '...'),
+            originalPlaceholder
+          ];
+          let index = 0;
+          
+          placeholderInterval = setInterval(() => {
+            this.placeholder = placeholders[index % placeholders.length];
+            index++;
+          }, 2000);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

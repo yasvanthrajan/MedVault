@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emergency Alert – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fff5f5;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 200, 200, 0.2) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(255, 200, 200, 0.2) 0%, transparent 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(220, 38, 38, 0.15);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(220, 38, 38, 0.3);
+      text-align: center;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      color: #dc2626;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    h1 {
+      color: #b91c1c;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .emergency-message {
+      color: #6b7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      padding: 0 10px;
+    }
+
+    .btn-emergency {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+    }
+
+    .btn-emergency:hover {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+    }
+
+    .btn-emergency:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      margin-top: 24px;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .status.success {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .emergency-contact {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #fee2e2;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+    .emergency-contact a {
+      color: #dc2626;
+      font-weight: 500;
+      text-decoration: none;
+    }
+
+    .emergency-contact a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .icon {
+        font-size: 56px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">🚨</div>
+    <h1>Medical Emergency Alert</h1>
+    <p class="emergency-message">
+      In case of a life-threatening medical emergency, click the button below to immediately notify your healthcare provider and emergency contacts.
+    </p>
+    <button class="btn-emergency" onclick="triggerEmergency()">
+      <span>🚑</span> Trigger Emergency Alert
+    </button>
+    <div id="status" class="status"></div>
+    
+    <div class="emergency-contact">
+      If you cannot reach your doctor, call emergency services: <a href="tel:911">911</a> (US) or <a href="tel:108">108</a> (IND)
+    </div>
+  </div>
+
+ <script>
+  function triggerEmergency() {
+    const status = document.getElementById("status");
+    status.textContent = "Sending emergency alert...";
+    status.className = "status";
+
+    fetch("http://localhost:5000/trigger-emergency", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({})
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        status.textContent = "✅ Emergency alert sent successfully! Help is on the way!";
+        status.className = "status success";
+      } else {
+        status.textContent = "❌ Failed to send emergency alert. Please try again or call directly.";
+        status.className = "status error";
+      }
+    })
+    .catch(() => {
+      status.textContent = "⚠️ Could not reach the server. Please call emergency services directly.";
+      status.className = "status warning";
+    });
+  }
+</script>
+
+</body>
+</html>

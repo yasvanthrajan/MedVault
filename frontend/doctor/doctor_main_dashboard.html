@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Doctor Dashboard – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --secondary: #0ea5e9;
+      --accent: #10b981;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --lighter: #ffffff;
+      --dark: #0f172a;
+      --text: #334155;
+      --text-light: #64748b;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --gradient-primary: linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%);
+      --gradient-card: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow-primary: 0 8px 25px -8px rgba(37, 99, 235, 0.3);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      margin: 0;
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: var(--text);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated background elements */
+    .bg-decoration {
+      position: fixed;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .bg-circle-1 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.03) 0%, transparent 70%);
+      border-radius: 50%;
+      top: -200px;
+      right: -200px;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .bg-circle-2 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(14, 165, 233, 0.04) 0%, transparent 70%);
+      border-radius: 50%;
+      bottom: -150px;
+      left: -150px;
+      animation: float 25s infinite ease-in-out reverse;
+    }
+
+    .medical-icons {
+      position: fixed;
+      font-size: 2rem;
+      opacity: 0.02;
+      animation: drift 30s infinite linear;
+      z-index: -1;
+    }
+
+    .icon-1 { top: 10%; right: 15%; animation-delay: 0s; }
+    .icon-2 { top: 30%; left: 10%; animation-delay: 10s; }
+    .icon-3 { bottom: 20%; right: 20%; animation-delay: 20s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(5deg); }
+    }
+
+    @keyframes drift {
+      0% { transform: translateX(-10px) translateY(0px); }
+      25% { transform: translateX(10px) translateY(-10px); }
+      50% { transform: translateX(-5px) translateY(-15px); }
+      75% { transform: translateX(15px) translateY(-5px); }
+      100% { transform: translateX(-10px) translateY(0px); }
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+
+    .header h1 {
+      color: var(--dark);
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      margin: 0 0 0.5rem 0;
+      background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .header .subtitle {
+      color: var(--text-light);
+      font-size: 1.125rem;
+      font-weight: 400;
+      margin: 0;
+      letter-spacing: 0.01em;
+    }
+
+    .doctor-icon {
+      display: inline-block;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: pulse-gentle 4s infinite ease-in-out;
+      filter: drop-shadow(0 4px 8px rgba(37, 99, 235, 0.15));
+    }
+
+    @keyframes pulse-gentle {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Dashboard Grid */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .dashboard-btn {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 2rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      min-height: 160px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .dashboard-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 1;
+    }
+
+    .dashboard-btn:hover::before {
+      opacity: 1;
+    }
+
+    .dashboard-btn:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: var(--shadow-xl), var(--shadow-primary);
+      border-color: var(--primary-light);
+    }
+
+    .dashboard-btn:active {
+      transform: translateY(-4px) scale(1.01);
+    }
+
+    .btn-icon {
+      font-size: 2.5rem;
+      position: relative;
+      z-index: 2;
+      transition: all 0.3s ease;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+
+      background-clip: text;
+      filter: drop-shadow(0 2px 4px rgba(37, 99, 235, 0.2));
+    }
+
+    .dashboard-btn:hover .btn-icon {
+      transform: scale(1.1);
+      -webkit-text-fill-color: white;
+      filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.3));
+    }
+
+    .btn-text {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      position: relative;
+      z-index: 2;
+      transition: color 0.3s ease;
+      text-align: center;
+      letter-spacing: 0.01em;
+      line-height: 1.4;
+    }
+
+    .dashboard-btn:hover .btn-text {
+      color: white;
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1000;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: none;
+      outline: none;
+      color: white;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl), 0 8px 25px -8px rgba(239, 68, 68, 0.4);
+    }
+
+    .logout-icon {
+      font-size: 1.125rem;
+      transition: transform 0.3s ease;
+    }
+
+    .logout-btn:hover .logout-icon {
+      transform: rotate(-10deg);
+    }
+
+    .logout-text {
+      margin: 0;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    /* Card hover effects */
+    .dashboard-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      transition: all 0.6s ease;
+      opacity: 0;
+      z-index: 3;
+    }
+
+    .dashboard-btn:hover::after {
+      animation: shimmer 0.6s ease-in-out;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.5rem;
+      }
+
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        gap: 1rem;
+        padding: 0 0.5rem;
+      }
+
+      .dashboard-btn {
+        padding: 1.5rem 1rem;
+        min-height: 140px;
+      }
+
+      .header {
+        margin-bottom: 2rem;
+      }
+
+      .logout-btn {
+        top: 1rem;
+        right: 1rem;
+        padding: 0.625rem 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dashboard-container {
+        max-width: 320px;
+      }
+
+      .dashboard-btn {
+        padding: 1.25rem 0.75rem;
+        min-height: 120px;
+      }
+
+      .btn-icon {
+        font-size: 2rem;
+      }
+
+      .btn-text {
+        font-size: 0.875rem;
+      }
+    }
+
+    /* Accessibility improvements */
+    .dashboard-btn:focus {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    .logout-btn:focus {
+      outline: 2px solid var(--danger);
+      outline-offset: 2px;
+    }
+
+    /* Smooth loading animation */
+    .dashboard-container {
+      animation: fadeInUp 0.8s ease-out;
+    }
+
+    .header {
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Decorations -->
+  <div class="bg-decoration bg-circle-1"></div>
+  <div class="bg-decoration bg-circle-2"></div>
+  
+  <div class="medical-icons icon-1">⚕️</div>
+  <div class="medical-icons icon-2">🩺</div>
+  <div class="medical-icons icon-3">💊</div>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="doctor-icon">👨‍⚕️</div>
+    <h1>Doctor Dashboard</h1>
+    <p class="subtitle">Manage your practice with ease</p>
+  </div>
+
+  <!-- Dashboard Grid -->
+  <div class="dashboard-container">
+    <button class="dashboard-btn" onclick="navigate('appointments.html')">
+      <div class="btn-icon">📅</div>
+      <p class="btn-text">Manage Appointments</p>
+    </button>
+
+    <button class="dashboard-btn" onclick="navigate('Prescription.html')">
+      <div class="btn-icon">💊</div>
+      <p class="btn-text">Send Prescription</p>
+    </button>
+
+    <button class="dashboard-btn" onclick="navigate('notifications.html')">
+      <div class="btn-icon">🔔</div>
+      <p class="btn-text">View Notifications</p>
+    </button>
+
+    <button class="dashboard-btn" onclick="navigate('generate_prescription_pdf.html')">
+      <div class="btn-icon">📄</div>
+      <p class="btn-text">Download Prescriptions as PDF</p>
+    </button>
+
+    <button class="dashboard-btn" onclick="navigate('search_patient.html')">
+      <div class="btn-icon">🔍</div>
+      <p class="btn-text">Search Patient</p>
+    </button>
+  </div>
+
+  <!-- Logout Button -->
+  <button class="logout-btn" onclick="logout()">
+    <div class="logout-icon">🚪</div>
+    <p class="logout-text">Logout</p>
+  </button>
+
+  <script>
+    function navigate(page) {
+      window.location.href = page;
+    }
+
+    function logout() {
+      fetch("http://localhost:5000/logout", {
+        method: "POST",
+        credentials: "include"
+      }).then(() => {
+        alert("✅ Logged out successfully!");
+        window.location.href = "/frontend/doctor/login.html";
+      });
+    }
+  </script>
+
+</body>
+</html>

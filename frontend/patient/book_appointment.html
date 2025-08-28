@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Book Appointment – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.15) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.15) 0%, transparent 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    h1 {
+      text-align: center;
+      color: #065f46;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    h1::before, h1::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #10b981);
+    }
+
+    h1::after {
+      background: linear-gradient(90deg, #10b981, transparent);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      color: #047857;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    input[type="date"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #d1fae5;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      color: #064e3b;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    input[type="text"]:focus,
+    input[type="tel"]:focus,
+    input[type="date"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #10b981;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+      background: linear-gradient(135deg, #0d9b6e, #2bbf8a);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      margin-top: 24px;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .status.success {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .phone-input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .country-code {
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .phone-number {
+      flex-grow: 1;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .loading-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #d1fae5;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .country-code {
+        width: 100px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>📅</span> Book Appointment</h1>
+    <form id="appointmentForm">
+      <div class="form-group">
+        <label for="name">Full Name:</label>
+        <input type="text" id="name" name="name" required placeholder="John Doe" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <div class="phone-input-group">
+          <select id="countryCode" name="countryCode" class="country-code">
+            <option data-countryCode="US" value="1" selected>USA (+1)</option>
+            <option data-countryCode="GB" value="44">UK (+44)</option>
+            <option data-countryCode="CA" value="1">Canada (+1)</option>
+            <option data-countryCode="AU" value="61">Australia (+61)</option>
+            <option data-countryCode="IN" value="91">India (+91)</option>
+            <option data-countryCode="JP" value="81">Japan (+81)</option>
+            <option data-countryCode="CN" value="86">China (+86)</option>
+            <option data-countryCode="DE" value="49">Germany (+49)</option>
+            <option data-countryCode="FR" value="33">France (+33)</option>
+            <option data-countryCode="BR" value="55">Brazil (+55)</option>
+            <option data-countryCode="MX" value="52">Mexico (+52)</option>
+            <option data-countryCode="RU" value="7">Russia (+7)</option>
+            <option data-countryCode="ZA" value="27">South Africa (+27)</option>
+            <option data-countryCode="NG" value="234">Nigeria (+234)</option>
+            <option data-countryCode="AE" value="971">UAE (+971)</option>
+            <option data-countryCode="SA" value="966">Saudi Arabia (+966)</option>
+            <option data-countryCode="KR" value="82">South Korea (+82)</option>
+            <option data-countryCode="SG" value="65">Singapore (+65)</option>
+          </select>
+          <input type="tel" id="phone" name="phone" class="phone-number" required placeholder="555 123 4567" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="date">Appointment Date:</label>
+        <input type="date" id="date" name="date" required />
+      </div>
+
+      <div class="form-group">
+        <label for="problem">Health Concern:</label>
+        <textarea id="problem" name="problem" required placeholder="Describe your symptoms or reason for appointment..."></textarea>
+      </div>
+
+      <button type="submit">
+        <span>📋</span> Book Appointment
+      </button>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+  </div>
+
+<script>
+  const form = document.getElementById("appointmentForm");
+  const status = document.getElementById("status");
+  const loadingOverlay = document.getElementById("loadingOverlay");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    // Show loading overlay
+    loadingOverlay.classList.add('active');
+    
+    status.textContent = "Processing your appointment...";
+    status.className = "status";
+
+    const formData = new URLSearchParams();
+    formData.append("patient_name", form.name.value);
+    formData.append("phone", `+${form.countryCode.value} ${form.phone.value}`);
+    formData.append("date", form.date.value);
+    formData.append("reason", form.problem.value);
+
+    fetch("http://localhost:5000/book-appointment", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString()
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        status.textContent = "✅ Appointment booked successfully!";
+        status.className = "status success";
+        form.reset();
+      } else {
+        status.textContent = "❌ Failed to book appointment. Please try again.";
+        status.className = "status error";
+      }
+    })
+    .catch(() => {
+      status.textContent = "⚠️ Unable to connect to server. Please check your connection.";
+      status.className = "status warning";
+    })
+    .finally(() => {
+      // Hide loading overlay
+      loadingOverlay.classList.remove('active');
+    });
+  });
+</script>
+
+</body>
+</html>

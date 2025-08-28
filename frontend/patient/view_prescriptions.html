@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>View Prescriptions – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.15) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.15) 0%, transparent 90%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(34, 197, 94, 0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    h1 {
+      color: #065f46;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .prescription {
+      background: white;
+      border-left: 4px solid #10b981;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .prescription:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+    }
+
+    .prescription p {
+      margin: 8px 0;
+      color: #475569;
+    }
+
+    .prescription strong {
+      color: #065f46;
+      font-weight: 500;
+      min-width: 100px;
+      display: inline-block;
+    }
+
+    .quote {
+      font-style: italic;
+      color: #64748b;
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      border-left: 3px solid #d1fae5;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .quote::before {
+      content: '💬';
+      font-style: normal;
+    }
+
+    .status {
+      text-align: center;
+      padding: 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      margin: 30px 0;
+    }
+
+    .status.success {
+      background-color: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
+
+    .status.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .status.warning {
+      background-color: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .status.info {
+      background-color: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 500;
+      margin-top: 20px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .prescription {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>💊</span> Your Prescriptions</h1>
+    
+    <div id="prescriptionList"></div>
+    
+    <div id="status" class="status info">
+      Loading your prescriptions...
+    </div>
+    
+    <a href="patient-dashboard.html" class="back-btn">
+      <span>←</span> Back to Dashboard
+    </a>
+  </div>
+
+  <script>
+    const phone = localStorage.getItem("patient_phone"); // stored at login
+    const prescriptionList = document.getElementById("prescriptionList");
+    const status = document.getElementById("status");
+
+    if (!phone) {
+      status.textContent = "❌ Phone number not found. Please log in again.";
+      status.className = "status error";
+    } else {
+      fetch(`http://127.0.0.1:5000/get-patient-prescriptions?phone=${encodeURIComponent(phone)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.prescriptions && data.prescriptions.length > 0) {
+            status.style.display = "none";
+            data.prescriptions.forEach(prescription => {
+              const div = document.createElement("div");
+              div.className = "prescription";
+              div.innerHTML = `
+                <p><strong>Medicine:</strong> ${prescription.medicine}</p>
+                <p><strong>Dosage:</strong> ${prescription.instruction}</p>
+                <p><strong>Prescribed On:</strong> ${new Date(prescription.date).toLocaleDateString()}</p>
+                <p><strong>Doctor's Notes:</strong> ${prescription.notes || 'No additional notes'}</p>
+                <div class="quote">"${prescription.quote || 'Take care and get well soon!'}"</div>
+              `;
+              prescriptionList.appendChild(div);
+            });
+          } else {
+            status.textContent = "📭 You don't have any prescriptions yet.";
+            status.className = "status info";
+          }
+        })
+        .catch(() => {
+          status.textContent = "⚠️ Could not fetch prescriptions. Please try again later.";
+          status.className = "status warning";
+        });
+    }
+  </script>
+</body>
+</html>

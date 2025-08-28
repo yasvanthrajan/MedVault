@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Doctor Signup – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f7fd;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%),
+        radial-gradient(circle at 90% 80%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 119, 182, 0.1);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #0077b6, #00b4d8);
+    }
+
+    h1 {
+      text-align: center;
+      color: #0077b6;
+      margin-bottom: 30px;
+      font-size: 28px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    h1::before, h1::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #0077b6);
+    }
+
+    h1::after {
+      background: linear-gradient(90deg, #0077b6, transparent);
+    }
+
+    .step-indicator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .step.active {
+      background: #0077b6;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .step.completed {
+      background: #2a9d8f;
+      color: white;
+    }
+
+    .step-line {
+      width: 60px;
+      height: 2px;
+      background: #e2e8f0;
+      margin-top: 19px;
+      transition: all 0.3s ease;
+    }
+
+    .step-line.active {
+      background: #0077b6;
+    }
+
+    form {
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #4a6fa5;
+      font-weight: 500;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #caf0f8;
+      border-radius: 10px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      color: #03045e;
+    }
+
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #0077b6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 180, 216, 0.3);
+      background: linear-gradient(135deg, #0067a6, #00a4c8);
+    }
+
+    input[type="submit"]:active {
+      transform: translateY(0);
+    }
+
+    input[type="submit"]:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-spinner {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .form-step {
+      opacity: 1;
+      transform: translateX(0);
+      transition: all 0.3s ease;
+    }
+
+    .form-step.hidden {
+      display: none;
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    .links a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      margin: 0 10px;
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 119, 182, 0.2);
+    }
+
+    .links a:hover {
+      background: rgba(0, 180, 216, 0.1);
+      border-color: rgba(0, 119, 182, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .secondary-links {
+      text-align: center;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .secondary-links a {
+      color: #6c757d;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .secondary-links a:hover {
+      color: #0077b6;
+      text-decoration: underline;
+    }
+
+    .success-animation {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .checkmark {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #2a9d8f;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+      0% { transform: scale(0); }
+      100% { transform: scale(1); }
+    }
+
+    .medical-icon {
+      font-size: 24px;
+      color: #0077b6;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 10px;
+        padding: 30px 25px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .step-indicator {
+        margin-bottom: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="medical-icon">⚕️</span> Create Doctor Account</h1>
+
+    <div class="step-indicator">
+      <div class="step active" id="step1">1</div>
+      <div class="step-line" id="line1"></div>
+      <div class="step" id="step2">2</div>
+    </div>
+
+    <!-- Step 1: Signup Form -->
+    <div class="form-step" id="signupStep">
+      <form id="signupForm">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="doctor@hospital.com" required />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Create a secure password" required />
+
+        <input type="submit" value="Create Account" id="signupBtn" />
+        <div class="loading-spinner" id="signupSpinner"></div>
+      </form>
+    </div>
+
+    <!-- Step 2: Verification Code -->
+    <div class="form-step hidden" id="verifyStep">
+      <form id="verifyForm">
+        <label for="code">Verification Code</label>
+        <input type="text" id="code" placeholder="Enter 6-digit code" required />
+
+        <input type="submit" value="Verify Account" id="verifyBtn" />
+        <div class="loading-spinner" id="verifySpinner"></div>
+      </form>
+    </div>
+
+    <div class="links">
+      <a href="../index.html">← Back to Home</a>
+    </div>
+
+    <div class="secondary-links">
+      <a href="forgot-password.html">Forgot Password?</a>
+      <span style="margin: 0 10px; color: #d1d5db;">•</span>
+      <a href="login.html">Already have an account? Login</a>
+    </div>
+  </div>
+
+  <script>
+    const signupForm = document.getElementById("signupForm");
+    const verifyForm = document.getElementById("verifyForm");
+    const signupStep = document.getElementById("signupStep");
+    const verifyStep = document.getElementById("verifyStep");
+    const signupBtn = document.getElementById("signupBtn");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const signupSpinner = document.getElementById("signupSpinner");
+    const verifySpinner = document.getElementById("verifySpinner");
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const line1 = document.getElementById("line1");
+
+    let cachedEmail = "";
+
+    function showLoading(button, spinner) {
+      button.style.opacity = "0.7";
+      button.disabled = true;
+      spinner.style.display = "block";
+    }
+
+    function hideLoading(button, spinner) {
+      button.style.opacity = "1";
+      button.disabled = false;
+      spinner.style.display = "none";
+    }
+
+    function moveToStep2() {
+      signupStep.classList.add("hidden");
+      verifyStep.classList.remove("hidden");
+      step1.classList.remove("active");
+      step1.classList.add("completed");
+      step2.classList.add("active");
+      line1.classList.add("active");
+    }
+
+    signupForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      showLoading(signupBtn, signupSpinner);
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const role = "doctor";
+
+      fetch("http://localhost:5000/cognito-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role })
+      })
+      .then(res => res.json())
+      .then(data => {
+        hideLoading(signupBtn, signupSpinner);
+        if (data.message) {
+          alert("✅ " + data.message + ". Check your inbox for verification code.");
+          cachedEmail = email;
+          moveToStep2();
+        } else if (data.error) {
+          alert("❌ " + data.error);
+        }
+      })
+      .catch(() => {
+        hideLoading(signupBtn, signupSpinner);
+        alert("❌ Network error");
+      });
+    });
+
+    verifyForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      showLoading(verifyBtn, verifySpinner);
+
+      const code = document.getElementById("code").value;
+
+      fetch("http://localhost:5000/confirm-signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: cachedEmail, code: code, role: "doctor" })
+      })
+      .then(res => res.json())
+      .then(data => {
+        hideLoading(verifyBtn, verifySpinner);
+        if (data.message) {
+          alert("✅ " + data.message);
+          // Redirect to Doctor Dashboard
+          window.location.href = "doctor_main_dashboard.html";
+        } else {
+          alert("❌ " + (data.error || "Verification failed."));
+        }
+      })
+      .catch(() => {
+        hideLoading(verifyBtn, verifySpinner);
+        alert("❌ Verification error");
+      });
+    });
+  </script>
+</body>
+</html>

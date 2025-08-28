@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Appointments – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;
+      --accent: #22c55e;
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --border: #e2e8f0;
+      --text: #334155;
+      --card-bg: #ffffff;
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --gradient-soft: linear-gradient(135deg, rgba(79, 70, 229, 0.1), rgba(6, 182, 212, 0.1));
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 8px 25px rgba(79, 70, 229, 0.15);
+      --shadow-xl: 0 12px 40px rgba(79, 70, 229, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: var(--text);
+      line-height: 1.6;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Enhanced background pattern */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
+      z-index: -2;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 20px auto;
+      background: var(--card-bg);
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(20px);
+    }
+
+    .header {
+      background: var(--gradient);
+      color: white;
+      padding: 30px 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated header background */
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+      animation: headerShine 6s ease-in-out infinite;
+    }
+
+    @keyframes headerShine {
+      0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+      50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent), var(--primary-light), var(--secondary));
+      animation: gradientMove 3s ease-in-out infinite;
+    }
+
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+      z-index: 1;
+    }
+
+    .header h1::before {
+      content: "👨‍⚕️";
+      margin-right: 18px;
+      font-size: 36px;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+      animation: iconFloat 4s ease-in-out infinite;
+    }
+
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-5px) rotate(2deg); }
+    }
+
+    .content {
+      padding: 40px 45px 50px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%);
+    }
+
+    button, input[type="submit"] {
+      padding: 14px 28px;
+      font-size: 15px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      background: var(--gradient);
+      color: white;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: 'Inter', sans-serif;
+      box-shadow: var(--shadow-md);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.6s;
+      z-index: 1;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: var(--shadow-lg);
+    }
+
+    button:active {
+      transform: translateY(-1px) scale(1.01);
+    }
+
+    .logout-btn {
+      background: linear-gradient(135deg, var(--danger), #f97316);
+      padding: 14px 26px;
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #dc2626, #ea580c);
+      transform: translateY(-3px) scale(1.02);
+    }
+
+    input[type="text"], input[type="datetime-local"] {
+      padding: 16px 20px;
+      width: 320px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      margin-right: 18px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: white;
+      font-size: 15px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    input[type="text"]::placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+    }
+
+    input[type="text"]:focus, input[type="datetime-local"]:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), var(--shadow-md);
+      background: white;
+      transform: translateY(-2px);
+    }
+
+    #searchForm {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 25px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #searchForm::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--gradient);
+    }
+
+    #searchForm label {
+      font-weight: 600;
+      color: var(--dark);
+      font-size: 16px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section {
+      margin-top: 40px;
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .section:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .section::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--gradient);
+    }
+
+    .section h2 {
+      color: var(--dark);
+      font-size: 22px;
+      margin-top: 0;
+      margin-bottom: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      font-family: 'Montserrat', sans-serif;
+      gap: 15px;
+      position: relative;
+    }
+
+    .section h2::after {
+      content: "";
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      margin-left: 20px;
+    }
+
+    .report, .prescription {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report::before, .prescription::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--gradient);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .report:hover::before, .prescription:hover::before {
+      transform: scaleY(1);
+    }
+
+    .report:hover, .prescription:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-light);
+    }
+
+    .report-button {
+      background: var(--gradient);
+      color: white;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      margin-top: 18px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      gap: 10px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .report-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .report-button:hover::before {
+      left: 100%;
+    }
+
+    .report-button:hover {
+      transform: translateY(-2px) scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 25px;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: white;
+    }
+
+    th {
+      background: var(--gradient);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 1px;
+      padding: 20px 25px;
+      text-align: left;
+      position: sticky;
+      top: 0;
+      border: none;
+    }
+
+    td {
+      padding: 18px 25px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+      background: white;
+      transition: all 0.2s ease;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody tr {
+      transition: all 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: var(--gradient-soft);
+      transform: scale(1.005);
+    }
+
+    tbody tr:hover td {
+      background: transparent;
+    }
+
+    .history-item {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      padding-left: 80px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .history-item::before {
+      content: "✓";
+      position: absolute;
+      left: 25px;
+      top: 25px;
+      width: 35px;
+      height: 35px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .history-item::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .history-item:hover::after {
+      transform: scaleY(1);
+    }
+
+    .history-item:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .history-item:hover::before {
+      transform: scale(1.1) rotate(360deg);
+      background: linear-gradient(135deg, var(--accent), var(--secondary));
+    }
+
+    .history-item strong {
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    #results {
+      display: none;
+      background: white;
+      padding: 35px;
+      border-radius: 16px;
+      box-shadow: var(--shadow-md);
+      margin-top: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Enhanced animated background elements */
+    .bg-element {
+      position: fixed;
+      z-index: -1;
+      opacity: 0.03;
+      animation: floatAdvanced 20s infinite ease-in-out;
+      filter: blur(1px);
+    }
+
+    .cross-icon {
+      font-size: 400px;
+      right: -150px;
+      top: 50px;
+      animation-delay: 2s;
+      color: var(--primary);
+    }
+
+    .pulse-icon {
+      font-size: 350px;
+      left: -120px;
+      bottom: 100px;
+      animation-delay: 6s;
+      color: var(--secondary);
+    }
+
+    @keyframes floatAdvanced {
+      0%, 100% { 
+        transform: translateY(0) rotate(0deg) scale(1); 
+        opacity: 0.03;
+      }
+      25% { 
+        transform: translateY(-30px) rotate(5deg) scale(1.05); 
+        opacity: 0.05;
+      }
+      50% { 
+        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
+        opacity: 0.04;
+      }
+      75% { 
+        transform: translateY(-40px) rotate(7deg) scale(1.02); 
+        opacity: 0.06;
+      }
+    }
+
+    /* Loading states */
+    .loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid transparent;
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Section loading states */
+    .section-loading {
+      position: relative;
+      min-height: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .section-loading::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.8);
+      z-index: 10;
+      border-radius: 16px;
+    }
+
+    .loading-spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--border);
+      border-top: 4px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      z-index: 11;
+      margin-bottom: 15px;
+    }
+
+    .loading-text {
+      color: var(--text);
+      font-weight: 500;
+      z-index: 11;
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 1200px) {
+      .container {
+        max-width: 95%;
+        margin: 15px auto;
+      }
+      
+      .content {
+        padding: 35px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .container {
+        margin: 10px;
+        border-radius: 20px;
+      }
+      
+      .content {
+        padding: 30px;
+      }
+      
+      #searchForm {
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      
+      input[type="text"], input[type="datetime-local"] {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 15px;
+      }
+
+      .section {
+        padding: 30px 25px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 25px;
+      }
+
+      .header h1 {
+        font-size: 24px;
+      }
+
+      .content {
+        padding: 25px 20px;
+      }
+
+      .section {
+        padding: 25px 20px;
+        margin-top: 30px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .history-item {
+        padding: 20px;
+        padding-left: 70px;
+      }
+
+      .history-item::before {
+        left: 20px;
+        top: 20px;
+        width: 30px;
+        height: 30px;
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 20px;
+      }
+
+      .header h1::before {
+        font-size: 28px;
+        margin-right: 12px;
+      }
+
+      input[type="text"], input[type="datetime-local"] {
+        width: 100%;
+        padding: 14px 18px;
+      }
+
+      button {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--light);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--gradient);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Focus indicators for accessibility */
+    button:focus-visible,
+    input:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Enhanced background decorative elements -->
+  <div class="bg-element cross-icon">⚕️</div>
+  <div class="bg-element pulse-icon">📈</div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Doctor Appointments Dashboard</h1>
+      <button class="logout-btn" onclick="logout()">
+        <span>🚪</span> Logout
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- 📅 Pending Appointments -->
+      <div class="section">
+        <h2>📅 Pending Appointments</h2>
+        <div id="appointmentsLoading" class="section-loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading appointments...</div>
+        </div>
+        <table id="appointmentsTable">
+          <thead>
+            <tr>
+              <th>👤 Patient</th>
+              <th>📞 Phone</th>
+              <th>📅 Date</th>
+              <th>📝 Reason</th>
+              <th>🕒 Select Time</th>
+              <th>⚡ Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 🗂️ Appointment History -->
+      <div class="section">
+        <h2>📜 Appointment History</h2>
+        <div id="historyLoading" class="section-loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">Loading appointment history...</div>
+        </div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      const button = document.querySelector('.logout-btn');
+      button.classList.add('loading');
+      
+      fetch("http://localhost:5000/logout", { method: "POST" })
+        .then(() => {
+          alert("✅ Logged out successfully!");
+          window.location.href = "login.html";
+        })
+        .catch((error) => {
+          button.classList.remove('loading');
+          alert("❌ Logout failed. Please try again.");
+        });
+    }
+
+    // 📅 Load Appointments
+    fetch("http://localhost:5000/get-appointments")
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.querySelector("#appointmentsTable tbody");
+        const loadingElement = document.getElementById("appointmentsLoading");
+        
+        // Hide loading indicator
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+
+        if (data.appointments && data.appointments.length > 0) {
+          data.appointments.forEach((a, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+              <td><strong>👤 ${a.name}</strong></td>
+              <td><strong>📞 ${a.phone}</strong></td>
+              <td><strong>📅 ${a.date}</strong></td>
+              <td>${a.reason}</td>
+              <td><input type="datetime-local" id="confirmTime_${index}" style="width: 100%; padding: 8px; border-radius: 8px; border: 1px solid var(--border);"></td>
+              <td><button onclick="confirmAppointment(${index}, '${a.phone}', '${a.name}', ${a.id})" style="padding: 8px 16px; font-size: 13px;">✅ Confirm</button></td>
+            `;
+            tbody.appendChild(row);
+          });
+        } else {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td colspan="6" style="text-align: center; padding: 40px; color: #64748b; font-style: italic;">
+              <div style="font-size: 48px; margin-bottom: 10px;">📅</div>
+              No pending appointments at this time
+            </td>
+          `;
+          tbody.appendChild(row);
+        }
+      })
+      .catch(error => {
+        const loadingElement = document.getElementById("appointmentsLoading");
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+        
+        const tbody = document.querySelector("#appointmentsTable tbody");
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td colspan="6" style="text-align: center; padding: 40px; color: var(--danger); font-style: italic;">
+            <div style="font-size: 48px; margin-bottom: 10px;">❌</div>
+            Failed to load appointments. Please try again.
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+    function confirmAppointment(index, phone, name, appointmentId) {
+      const selectedTime = document.getElementById("confirmTime_" + index).value;
+      if (!selectedTime) {
+        alert("⏰ Please select an appointment time.");
+        return;
+      }
+
+      const button = document.querySelector(`button[onclick="confirmAppointment(${index}, '${phone}', '${name}', ${appointmentId})"]`);
+      button.classList.add('loading');
+      button.disabled = true;
+
+      fetch("http://localhost:5000/confirm-appointment", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `appointment_id=${appointmentId}&patient_name=${encodeURIComponent(name)}&patient_phone=${encodeURIComponent(phone)}&confirmed_time=${encodeURIComponent(selectedTime)}`
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.message) {
+          alert("✅ " + data.message);
+          const row = document.querySelector(`#confirmTime_${index}`).closest("tr");
+          row.style.animation = "slideOut 0.5s ease-in";
+          setTimeout(() => row.remove(), 500);
+        } else {
+          alert("❌ " + (data.error || "Unknown error occurred"));
+          button.classList.remove('loading');
+          button.disabled = false;
+        }
+      })
+      .catch((error) => {
+        alert("❌ Confirmation failed. Please try again.");
+        button.classList.remove('loading');
+        button.disabled = false;
+      });
+    }
+
+    // Add slide out animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideOut {
+        from { opacity: 1; transform: translateX(0); }
+        to { opacity: 0; transform: translateX(100px); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // 📜 Load History
+    fetch("http://localhost:5000/get-confirmed-appointments")
+      .then(res => res.json())
+      .then(data => {
+        const section = document.getElementById("historyList");
+        const loadingElement = document.getElementById("historyLoading");
+        
+        // Hide loading indicator
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+
+        if (data.history && data.history.length > 0) {
+          data.history.forEach(h => {
+            const div = document.createElement("div");
+            div.className = "history-item";
+            div.innerHTML = `
+              <div style="font-size: 20px; margin-bottom: 10px; font-weight: 600;">
+                <strong>${h.name}</strong> 
+                <span style="color: #64748b; font-size: 16px; font-weight: 400; margin-left: 10px;">📞 ${h.phone}</span>
+              </div>
+              <div style="margin-bottom: 8px; color: var(--text);"><strong>📝 Reason:</strong> <span style="color: var(--primary);">${h.reason}</span></div>
+              <div style="color: var(--text);"><strong>⏰ Confirmed at:</strong> <span style="color: var(--accent); font-weight: 500;">${h.confirmed_at}</span></div>
+            `;
+            section.appendChild(div);
+          });
+        } else {
+          section.innerHTML = `
+            <div style="text-align: center; padding: 50px 20px; color: #64748b;">
+              <div style="font-size: 72px; margin-bottom: 20px; opacity: 0.5;">📭</div>
+              <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">No confirmed appointments yet</div>
+              <div style="font-size: 16px; opacity: 0.8;">Your appointment history will appear here once you confirm appointments</div>
+            </div>
+          `;
+        }
+      })
+      .catch(error => {
+        const loadingElement = document.getElementById("historyLoading");
+        if (loadingElement) {
+          loadingElement.style.display = "none";
+        }
+        
+        const section = document.getElementById("historyList");
+        section.innerHTML = `
+          <div style="text-align: center; padding: 50px 20px; color: var(--danger);">
+            <div style="font-size: 72px; margin-bottom: 20px; opacity: 0.5;">❌</div>
+            <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Failed to load appointment history</div>
+            <div style="font-size: 16px; opacity: 0.8;">Please try refreshing the page</div>
+          </div>
+        `;
+      });
+
+    // Add smooth scroll behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+  </script>
+</body>
+</html>

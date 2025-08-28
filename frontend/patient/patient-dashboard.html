@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Patient Dashboard – MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.15) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.15) 0%, transparent 90%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #065f46;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .highlight {
+      color: #10b981;
+    }
+
+    .welcome-message {
+      color: #64748b;
+      font-size: 16px;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.15);
+    }
+
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .card-content {
+      flex: 1;
+    }
+
+    .action-title {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      text-align: center;
+      transition: all 0.3s ease;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn.success {
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+    }
+
+    .btn.success:hover {
+      background: linear-gradient(135deg, #0d9b6e, #2bbf8a);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn.danger {
+      background: linear-gradient(135deg, #ef4444, #f87171);
+      color: white;
+    }
+
+    .btn.danger:hover {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+    }
+
+    .logout-container {
+      margin-top: 40px;
+      text-align: center;
+      padding-top: 30px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card-row {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 28px;
+      }
+      
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>👨‍⚕️</span> <span class="highlight">Patient Dashboard</span></h1>
+    <p class="welcome-message">Welcome back! Manage your health records and appointments.</p>
+
+    <div class="card-grid">
+      <!-- Upload Report -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">📤 Upload Report</h3>
+            <p>Upload your medical reports (PDF/Image) securely to your health profile.</p>
+          </div>
+          <a href="Report-upload.html" class="btn success">Upload</a>
+        </div>
+      </div>
+
+      <!-- View Reports -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">📄 View Reports</h3>
+            <p>Access all your medical records and test results in one place.</p>
+          </div>
+          <a href="view_reports.html" class="btn success">View</a>
+        </div>
+      </div>
+
+      <!-- Emergency Button -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">🚨 Emergency Alert</h3>
+            <p>Immediately notify your doctor in case of medical emergency.</p>
+          </div>
+          <a href="emergency.html" class="btn danger">Alert</a>
+        </div>
+      </div>
+
+      <!-- Book Appointment -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">📅 Book Appointment</h3>
+            <p>Schedule an in-person or virtual consultation with your doctor.</p>
+          </div>
+          <a href="book_appointment.html" class="btn primary">Book</a>
+        </div>
+      </div>
+
+      <!-- View Prescriptions -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">💊 View Prescriptions</h3>
+            <p>Check your current and past medication prescriptions.</p>
+          </div>
+          <a href="view_prescriptions.html" class="btn primary">View</a>
+        </div>
+      </div>
+
+      <!-- Health Summary -->
+      <div class="card">
+        <div class="card-row">
+          <div class="card-content">
+            <h3 class="action-title">📊 Health Summary</h3>
+            <p>View your overall health metrics and trends over time.</p>
+          </div>
+          <a href="health_summary.html" class="btn success">View</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="logout-container">
+      <button class="btn danger" onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <script>
+    function logout() {
+      fetch("http://127.0.0.1:5000/logout", { method: "POST" })
+        .then(() => {
+          alert("Logged out successfully!");
+          window.location.href = "/frontend/patient/patient_login.html";
+        })
+        .catch(() => {
+          alert("Logout failed. Please try again.");
+        });
+    }
+  </script>
+  
+  <script>
+    fetch("/cognito-check-login", { credentials: "include" })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.logged_in || data.role !== "patient") {
+          window.location.href = "/frontend/patient/patient_login.html";
+
+        }
+      });
+  </script>
+</body>
+</html>

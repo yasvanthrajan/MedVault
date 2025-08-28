@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>🔔 Notification Center – MedVault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #4f46e5;      /* Vibrant indigo */
+      --primary-light: #6366f1;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;    /* Cyan */
+      --accent: #22c55e;       /* Emerald */
+      --danger: #ef4444;
+      --light: #f8fafc;
+      --dark: #1e293b;
+      --text: #334155;
+      --card-bg: #ffffff;
+      --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+      --shadow-light: rgba(79, 70, 229, 0.07);
+      --shadow-medium: rgba(79, 70, 229, 0.15);
+    }
+
+    /* BODY & BACKGROUND */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--light);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 90%);
+      display: flex;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* CONTAINER */
+    .container {
+      max-width: 800px;
+      width: 100%;
+      padding: 0 20px;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    h1 {
+      color: var(--dark);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 32px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    h1::before {
+      content: "🔔";
+      font-size: 38px;
+      line-height: 1;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+      animation: pulseIcon 3s infinite ease-in-out;
+      display: inline-block;
+      transform-origin: center;
+    }
+
+    @keyframes pulseIcon {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.1) rotate(6deg); }
+    }
+
+    /* BACK BUTTON */
+    .back-btn {
+      background: var(--gradient);
+      color: white;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 5px 15px var(--shadow-light);
+      white-space: nowrap;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px var(--shadow-medium);
+    }
+
+    .back-btn:active {
+      transform: translateY(0);
+    }
+
+    /* NOTIFICATION CONTAINER */
+    .notification-container {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* NOTIFICATION CARD */
+    .notification-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 20px var(--shadow-light);
+      position: relative;
+      overflow: hidden;
+      border-left: 6px solid var(--primary);
+      transition: all 0.3s ease;
+      cursor: default;
+      user-select: text;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 36px var(--shadow-medium);
+    }
+
+    /* subtle glass reflection */
+    .notification-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0));
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 16px;
+      mix-blend-mode: screen;
+    }
+
+    /* NOTIFICATION TYPE */
+    .notification-type {
+      color: var(--primary);
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 17px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Message */
+    .notification-message {
+      margin: 12px 0;
+      line-height: 1.6;
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+      white-space: pre-wrap;
+    }
+
+    /* Timestamp */
+    .timestamp {
+      color: #64748b;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 15px;
+      font-style: italic;
+      position: relative;
+      z-index: 1;
+      user-select: none;
+    }
+
+    .timestamp::before {
+      content: "🕒";
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 70px 20px;
+      color: #64748b;
+      user-select: none;
+    }
+
+    .empty-state-icon {
+      font-size: 70px;
+      margin-bottom: 24px;
+      opacity: 0.45;
+      animation: slowPulse 4s infinite ease-in-out;
+    }
+
+    .empty-state-text {
+      font-size: 22px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .empty-state-subtext {
+      font-size: 15px;
+      line-height: 1.4;
+      max-width: 320px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    @keyframes slowPulse {
+      0%, 100% { opacity: 0.45; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Notification Type Colors */
+    .notification-card.alert {
+      border-left-color: var(--danger);
+    }
+    .notification-card.alert .notification-type {
+      color: var(--danger);
+    }
+
+    .notification-card.success {
+      border-left-color: var(--accent);
+    }
+    .notification-card.success .notification-type {
+      color: var(--accent);
+    }
+
+    .notification-card.info {
+      border-left-color: var(--secondary);
+    }
+    .notification-card.info .notification-type {
+      color: var(--secondary);
+    }
+
+    /* Medical decorative elements */
+    .medical-decoration {
+      position: fixed;
+      z-index: -1;
+      opacity: 0.03;
+      font-size: 320px;
+      animation: float 15s infinite ease-in-out;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .cross-icon {
+      right: -110px;
+      top: 90px;
+      color: var(--primary);
+    }
+
+    .pulse-icon {
+      left: -85px;
+      bottom: 160px;
+      color: var(--secondary);
+      animation-delay: 3s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-22px) rotate(5deg); }
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .container {
+        margin: 30px 20px;
+      }
+      h1 {
+        font-size: 26px;
+      }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 18px;
+      }
+      .back-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 24px;
+      }
+      .notification-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background decorative elements -->
+  <div class="medical-decoration cross-icon">⚕️</div>
+  <div class="medical-decoration pulse-icon">📈</div>
+
+  <div class="container">
+    <div class="header">
+      <h1>Notification Center</h1>
+      <button class="back-btn" onclick="goBack()">
+        <span>←</span> Back to Dashboard
+      </button>
+    </div>
+
+    <div id="notifications" class="notification-container">
+      <!-- Notifications will be inserted here -->
+    </div>
+  </div>
+
+  <script>
+    function goBack() {
+      window.location.href = "doctor_main_dashboard.html";
+    }
+
+    function getNotificationIcon(type) {
+      switch(type.toLowerCase()) {
+        case 'alert': return '🚨';
+        case 'success': return '✅';
+        case 'info': return 'ℹ️';
+        default: return '🔔';
+      }
+    }
+
+    // Mock data for demonstration
+    const mockNotifications = {
+      notifications: [
+        {
+          type: "Alert",
+          message: "Patient John Doe has abnormal blood pressure readings (150/95 mmHg). Please review immediately.",
+          timestamp: "Today, 10:45 AM"
+        },
+        {
+          type: "Success",
+          message: "Your prescription for Patient Jane Smith has been successfully processed by the pharmacy.",
+          timestamp: "Yesterday, 3:22 PM"
+        },
+        {
+          type: "Info",
+          message: "New lab results are available for Patient Michael Johnson. Click to view the complete report.",
+          timestamp: "Monday, 11:30 AM"
+        }
+      ]
+    };
+
+    function loadNotifications() {
+      const container = document.getElementById("notifications");
+      
+      // For demonstration, we'll use mock data
+      // In production, you would use the fetch API as shown below
+      try {
+        if (mockNotifications.notifications.length === 0) {
+          showEmptyState();
+        } else {
+          mockNotifications.notifications.forEach(note => {
+            const card = document.createElement("div");
+            card.className = `notification-card ${note.type.toLowerCase()}`;
+            card.innerHTML = `
+              <div class="notification-type">
+                ${getNotificationIcon(note.type)} ${note.type}
+              </div>
+              <div class="notification-message">${note.message}</div>
+              <div class="timestamp">${note.timestamp}</div>
+            `;
+            container.appendChild(card);
+          });
+        }
+      } catch (err) {
+        showErrorState();
+        console.error(err);
+      }
+      
+      
+      // Actual API call (commented out for now)
+      fetch("http://127.0.0.1:5000/get-notifications")
+        .then(res => res.json())
+        .then(data => {
+          if (data.notifications.length === 0) {
+            showEmptyState();
+          } else {
+            data.notifications.forEach(note => {
+              const card = document.createElement("div");
+              card.className = `notification-card ${note.type.toLowerCase()}`;
+              card.innerHTML = `
+                <div class="notification-type">
+                  ${getNotificationIcon(note.type)} ${note.type}
+                </div>
+                <div class="notification-message">${note.message}</div>
+                <div class="timestamp">${note.timestamp}</div>
+              `;
+              container.appendChild(card);
+            });
+          }
+        })
+        .catch(err => {
+          showErrorState();
+          console.error(err);
+        });
+
+    }
+
+    function showEmptyState() {
+      document.getElementById("notifications").innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔔</div>
+          <div class="empty-state-text">No notifications yet</div>
+          <div class="empty-state-subtext">You'll see important alerts here when they arrive</div>
+        </div>
+      `;
+    }
+
+    function showErrorState() {
+      document.getElementById("notifications").innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">⚠️</div>
+          <div class="empty-state-text">Failed to load notifications</div>
+          <div class="empty-state-subtext">Please try again later</div>
+        </div>
+      `;
+    }
+
+    // Load notifications when page loads
+    window.addEventListener('DOMContentLoaded', loadNotifications);
+  </script>
+</body>
+</html>

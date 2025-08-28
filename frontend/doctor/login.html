@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Doctor Login - MedVault</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f7fd;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%),
+        radial-gradient(circle at 90% 80%, rgba(91, 173, 254, 0.1) 0%, rgba(91, 173, 254, 0.1) 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(0, 119, 182, 0.1);
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #0077b6, #00b4d8);
+    }
+
+    h1 {
+      text-align: center;
+      color: #0077b6;
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    h1::before, h1::after {
+      content: '';
+      display: block;
+      width: 30px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #0077b6);
+    }
+
+    h1::after {
+      background: linear-gradient(90deg, #0077b6, transparent);
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      color: #4a6fa5;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid #caf0f8;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+      color: #03045e;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #0077b6;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 180, 216, 0.2);
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+      margin-top: 8px;
+    }
+
+    input[type="submit"]:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 180, 216, 0.3);
+      background: linear-gradient(135deg, #0067a6, #00a4c8);
+    }
+
+    input[type="submit"]:active {
+      transform: translateY(0);
+    }
+
+    .loading {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      width: 100%;
+      height: 100%;
+      border-radius: 16px;
+      z-index: 10;
+    }
+
+    .spinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e2e8f0;
+      border-top: 4px solid #0077b6;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .loading-text {
+      position: absolute;
+      top: 60%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #0077b6;
+      font-weight: 500;
+      margin-top: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .nav-links {
+      margin-top: 32px;
+      text-align: center;
+    }
+
+    .nav-links a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 119, 182, 0.2);
+    }
+
+    .nav-links a:hover {
+      background: rgba(0, 180, 216, 0.1);
+      transform: translateY(-1px);
+      border-color: rgba(0, 119, 182, 0.4);
+    }
+
+    .forgot-password {
+      margin-top: 16px;
+      text-align: center;
+    }
+
+    .forgot-password a {
+      color: #6c757d;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-password a:hover {
+      color: #0077b6;
+      text-decoration: underline;
+    }
+
+    .signup-link {
+      margin-top: 24px;
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid #e2e8f0;
+      color: #6c757d;
+      font-size: 14px;
+    }
+
+    .signup-link a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    .signup-link a:hover {
+      color: #005b8c;
+      text-decoration: underline;
+    }
+
+    .medical-icon {
+      font-size: 24px;
+      color: #0077b6;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px;
+        margin: 10px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="submit"] {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="medical-icon">⚕️</span> Doctor Login</h1>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required>
+      </div>
+
+      <input type="submit" value="Login">
+    </form>
+
+    <div class="forgot-password">
+      <a href="forgot-password.html">Forgot Password?</a>
+    </div>
+
+    <div class="nav-links">
+      <a href="../index.html">← Back to Home</a>
+    </div>
+
+    <div class="signup-link">
+      Don't have an account? <a href="signup.html">Sign up</a>
+    </div>
+
+    <div class="loading" id="loadingSpinner">
+      <div class="spinner"></div>
+      <div class="loading-text">Authenticating...</div>
+    </div>
+  </div>
+
+<!-- Everything above remains the same (your original styles and layout)... -->
+<!-- ONLY the <script> section below has been fixed. -->
+
+<script>
+  const expectedRole = "doctor"; // Expected role for doctor login
+
+  document.getElementById("loginForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const spinner = document.getElementById("loadingSpinner");
+    spinner.style.display = "block";
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    try {
+      const response = await fetch("http://localhost:5000//cognito-login", {
+        method: "POST",
+        credentials: "include",  // ✅ Needed to keep Flask session cookie
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: username,
+          password: password
+        })
+      });
+
+      const contentType = response.headers.get("Content-Type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const result = await response.json();
+        console.log("✅ Server Response:", result);
+
+        if (result.success) {
+          if (result.role === expectedRole) {
+            // ✅ Redirect to dashboard provided by backend
+            window.location.href = result.redirect;
+          } else {
+            alert("❌ You are not authorized to access the Doctor portal.");
+          }
+        } else {
+          alert(`❌ ${result.message || "Invalid credentials. Please try again."}`);
+        }
+      } else {
+        const raw = await response.text();
+        console.error("❌ Unexpected server response:", raw);
+        alert("❌ Unexpected server response. Please check backend logs or try again.");
+      }
+
+    } catch (error) {
+      console.error("❌ Login error:", error);
+      alert("❌ Login failed. Please check your network or try again.");
+    } finally {
+      spinner.style.display = "none";
+    }
+  });
+</script>
+
+</body>
+</html>

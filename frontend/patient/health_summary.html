@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Summary - MedVault</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(134, 239, 172, 0.15) 0%, transparent 90%),
+        radial-gradient(circle at 90% 80%, rgba(134, 239, 172, 0.15) 0%, transparent 90%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 40px rgba(34, 197, 94, 0.15);
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      transform-style: preserve-3d;
+      perspective: 1000px;
+    }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 8px;
+      background: linear-gradient(90deg, #10b981, #34d399, #10b981);
+      z-index: 2;
+    }
+
+    .container::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+      transform: rotate(30deg);
+      z-index: 1;
+    }
+
+    .icon-container {
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .main-icon {
+      font-size: 80px;
+      color: #10b981;
+      display: inline-block;
+      animation: pulse 2s infinite ease-in-out;
+      filter: drop-shadow(0 5px 10px rgba(16, 185, 129, 0.3));
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    h1 {
+      color: #065f46;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      position: relative;
+      z-index: 3;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .subtitle {
+      color: #64748b;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 35px;
+      position: relative;
+      z-index: 3;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .feature {
+      background: rgba(240, 253, 244, 0.7);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .feature:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15);
+      background: rgba(240, 253, 244, 0.9);
+    }
+
+    .feature-icon {
+      font-size: 30px;
+      margin-bottom: 12px;
+      color: #10b981;
+    }
+
+    .feature-title {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+
+    .feature-desc {
+      color: #64748b;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .progress-container {
+      background: rgba(240, 253, 244, 0.7);
+      border-radius: 15px;
+      padding: 25px;
+      margin-bottom: 30px;
+      position: relative;
+      z-index: 3;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .progress-bar {
+      height: 12px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 10px;
+      width: 65%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      background-image: linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.2) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.2) 75%,
+        transparent 75%,
+        transparent
+      );
+      z-index: 1;
+      background-size: 20px 20px;
+      animation: move 1s linear infinite;
+    }
+
+    @keyframes move {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 20px 0;
+      }
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      color: #475569;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .progress-label {
+      color: #065f46;
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 5px;
+      text-align: left;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: white;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 3;
+      box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #0d9b6e, #2bbf8a);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(150%);
+      transition: transform 0.4s ease;
+      z-index: 1000;
+      border-left: 4px solid #10b981;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+      .features-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 40px 25px;
+      }
+      
+      h1 {
+        font-size: 28px;
+      }
+      
+      .subtitle {
+        font-size: 16px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 30px 20px;
+      }
+      
+      h1 {
+        font-size: 24px;
+      }
+      
+      .main-icon {
+        font-size: 60px;
+      }
+      
+      .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon-container">
+      <div class="main-icon">📊</div>
+    </div>
+    
+    <h1>Health Summary</h1>
+    <p class="subtitle">We're working hard to bring you detailed health insights and analytics. This feature will be available soon!</p>
+    
+    <div class="features-grid">
+      <div class="feature">
+        <div class="feature-icon">📈</div>
+        <div class="feature-title">Health Trends</div>
+        <div class="feature-desc">Track your health metrics over time with interactive charts</div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Goal Tracking</div>
+        <div class="feature-desc">Set and monitor your health and wellness goals</div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">🧘</div>
+        <div class="feature-title">Wellness Score</div>
+        <div class="feature-desc">Get an overall score based on your health data</div>
+      </div>
+      
+      <div class="feature">
+        <div class="feature-icon">📋</div>
+        <div class="feature-title">Personalized Insights</div>
+        <div class="feature-desc">Receive actionable recommendations for better health</div>
+      </div>
+    </div>
+          <span>🔔</span> We'll notify you when this feature is ready!
+  </div>
+
+</body>
+</html>

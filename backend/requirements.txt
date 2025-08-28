@@ -11,3 +11,4 @@ mysql-connector-python
 python-dotenv
 twilio
 flask-cors
+reportlab
