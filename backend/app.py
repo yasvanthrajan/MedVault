@@ -388,6 +388,64 @@ def check_login():
         return jsonify({"logged_in": True})
     return jsonify({"logged_in": False})
 
+@app.route("/api/login", methods=["POST"])
+def login():
+    try:
+        username = request.form.get("username") or request.json.get("username")
+        password = request.form.get("password") or request.json.get("password")
+
+        print("🧪 Received username:", username)
+        print("🧪 Received password:", password)
+
+        if not username or not password:
+            return jsonify({ "success": False, "message": "Missing username or password." }), 400
+
+        secret_hash = get_secret_hash(username, COGNITO_APP_CLIENT_ID, COGNITO_CLIENT_SECRET)
+
+        response = client.initiate_auth(
+            ClientId=COGNITO_APP_CLIENT_ID,
+            AuthFlow="USER_PASSWORD_AUTH",
+            AuthParameters={
+                "USERNAME": username,
+                "PASSWORD": password,
+                "SECRET_HASH": secret_hash
+            }
+        )
+
+        user_data = client.admin_get_user(
+            UserPoolId=COGNITO_USER_POOL_ID,
+            Username=username
+        )
+
+        role = None
+        for attr in user_data["UserAttributes"]:
+            if attr["Name"] == "custom:role":
+                role = attr["Value"]
+                break
+
+        if not role:
+            return jsonify({ "success": False, "message": "Role not found." }), 401
+
+        session.permanent = True
+        session["username"] = username
+        session["role"] = role
+        session["access_token"] = response["AuthenticationResult"]["AccessToken"]
+
+        return jsonify({
+            "success": True,
+            "role": role,
+            "redirect": f"/{role}/{role}_main_dashboard.html" if role == "doctor" else f"/patient/patient-dashboard.html",
+            "message": "Login successful."
+        })
+
+    except ClientError as e:
+        print("❌ Login error:", str(e))
+        return jsonify({ "success": False, "message": "Invalid credentials." }), 401
+
+    except Exception as e:
+        print("❌ Server error:", str(e))
+        return jsonify({ "success": False, "message": "Server error." }), 500
+
 @app.route('/api/logout', methods=['GET'])
 def logout():
     session.pop('doctor_logged_in', None)
