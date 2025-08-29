@@ -1,27 +1,7 @@
-name: Deploy MedVault Backend to EC2
-
-on:
-  push:
-    branches: [ "master" ]
-
-jobs:
-  deploy:
-    name: Deploy to EC2
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          # If repo not cloned yet, clone it
+          # Clone repo if missing
           if [ ! -d "/home/ubuntu/MedVault" ]; then
             git clone https://github.com/yasvanthrajan/MedVault.git /home/ubuntu/MedVault
           fi
@@ -30,10 +10,17 @@ jobs:
           git pull origin master
 
           cd backend
+
+          # Stop/remove old container if exists
           docker stop medvault || true
           docker rm medvault || true
-          docker build -t medvault .
 
-          # Run without .env for now (we can add later if needed)
+          # Free port 5000 if any container is still using it
+          docker ps -q --filter "publish=5000" | xargs -r docker stop
+
+          # Build using backend/Dockerfile
+          docker build -t medvault -f Dockerfile .
+
+          # Run new container
           docker run -d --name medvault -p 5000:5000 medvault
         EOF
