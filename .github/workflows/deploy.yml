@@ -21,10 +21,31 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/backend
-          git pull origin main
+          # Install Docker if not installed
+          if ! command -v docker &> /dev/null
+          then
+            sudo apt-get update -y
+            sudo apt-get install -y docker.io
+            sudo usermod -aG docker ubuntu
+          fi
+
+          # Clone repo if not already present
+          if [ ! -d "/home/ubuntu/MedVault" ]; then
+            git clone https://github.com/yasvanthrajan/MedVault.git /home/ubuntu/MedVault
+          fi
+
+          cd /home/ubuntu/MedVault
+          git pull origin master
+
+          cd backend
+
+          # Stop/remove old container
           docker stop medvault || true
           docker rm medvault || true
+          docker ps -q --filter "publish=5000" | xargs -r docker stop
+          docker ps -q --filter "publish=5000" | xargs -r docker rm
+
+          # Build and run
           docker build -t medvault .
-          docker run -d --name medvault --env-file .env -p 80:5000 medvault
+          docker run -d --name medvault -p 5000:5000 medvault
         EOF
