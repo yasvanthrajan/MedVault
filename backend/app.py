@@ -1,11 +1,10 @@
-from flask import Flask, request, jsonify, session, render_template, redirect, url_for
+from flask import Flask, request, jsonify, session, redirect, url_for
 import boto3
 import hashlib
 import os
 import threading
 import time
 import logging
-import traceback
 import mysql.connector
 from twilio.rest import Client
 from dotenv import load_dotenv
@@ -17,13 +16,10 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from flask import send_file
 import io
-from auth import get_cognito
-from flask import send_from_directory
 from auth import get_secret_hash
 from botocore.exceptions import ClientError
 import hmac
 import base64
-from flask import Flask, session
 from flask_session import Session
 
 app = Flask(__name__, template_folder="../frontend", static_folder="../frontend")
@@ -41,7 +37,6 @@ Session(app)
 client = boto3.client('cognito-idp', region_name='eu-north-1')
 sns = boto3.client('sns', region_name='ap-south-1')
 
-# Load environment
 load_dotenv()
 
 # The CORS origin will be your EC2 public IP or domain.
@@ -53,7 +48,6 @@ CORS(app, supports_credentials=True, resources={
     }
 })
 
-# Logging
 logging.basicConfig(level=logging.DEBUG)
 
 # AWS & Twilio Config
@@ -110,10 +104,6 @@ def log_notification(type, message):
         conn.close()
     except Exception as e:
         print("❌ Notification log error:", e)
-
-# --- REMOVED ALL NON-API ROUTES ---
-# NGINX is configured to serve the static frontend files directly.
-# The backend will now only handle API requests.
 
 def get_user_role_from_db(email):
     connection = mysql.connector.connect(
@@ -405,7 +395,6 @@ def check_login():
         return jsonify({"logged_in": True})
     return jsonify({"logged_in": False})
 
-# The following routes will also use the /api/ prefix
 @app.route("/api/login", methods=["POST"])
 def login():
     try:
@@ -507,7 +496,6 @@ def upload_report():
             insert_values = (patient_name, phone, report_type, url)
             cursor.execute(insert_query, insert_values)
             conn.commit()
-            print("✅ DB Insert Successful")
             cursor.close()
             conn.close()
 
@@ -805,254 +793,6 @@ def get_patient_reports():
     except Exception as e:
         print("❌ DB Fetch Error:", e)
         return jsonify({"error": "DB error"}), 500
-
-@app.route('/api/patient_login', methods=['POST'])
-def patient_login():
-    username = request.form.get("username")
-    password = request.form.get("password")
-
-    try:
-        secret_hash = get_secret_hash(username, COGNITO_APP_CLIENT_ID, COGNITO_CLIENT_SECRET)
-        response = client.initiate_auth(
-            ClientId=COGNITO_APP_CLIENT_ID,
-            AuthFlow="USER_PASSWORD_AUTH",
-            AuthParameters={
-                "USERNAME": username,
-                "PASSWORD": password,
-                "SECRET_HASH": secret_hash
-            }
-        )
-
-        session.permanent = True
-        session['patient_logged_in'] = True
-        session['doctor_logged_in'] = False
-        session['patient_username'] = username
-        session['email'] = username
-        session['role'] = "patient"
-        session['access_token'] = response["AuthenticationResult"]["AccessToken"]
-
-        return jsonify({
-            "success": True,
-            "redirect": "/patient/patient-dashboard.html"
-        })
-
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 401
-
-@app.route('/api/patient_logout', methods=['GET'])
-def patient_logout():
-    session.pop('patient_logged_in', None)
-    session.pop('patient_username', None)
-    session.pop('email', None)
-    session.pop('role', None)
-    return redirect('/patient/patient_login.html')
-
-@app.route('/api/book-appointment', methods=['POST'])
-def book_appointment():
-    patient_name = request.form.get('patient_name')
-    phone = request.form.get('phone')
-    date = request.form.get('date')
-    reason = request.form.get('reason')
-
-    if not (patient_name and phone and date and reason):
-        return jsonify({"error": "All fields are required"}), 400
-
-    try:
-        conn = mysql.connector.connect(host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME)
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO appointments (patient_name, phone, date, reason)
-            VALUES (%s, %s, %s, %s)
-        """, (patient_name, phone, date, reason))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({"success": True})
-    except Exception as e:
-        print("❌ DB Error:", e)
-        return jsonify({"error": "❌ Failed to book appointment"}), 500
-
-def generate_presigned_url(bucket_name, object_key, expiration=3600):
-    try:
-        s3_client = boto3.client(
-            "s3",
-            region_name=AWS_REGION,
-            aws_access_key_id=AWS_ACCESS_KEY,
-            aws_secret_access_key=AWS_SECRET_KEY
-        )
-        url = s3_client.generate_presigned_url(
-            ClientMethod='get_object',
-            Params={
-                'Bucket': bucket_name,
-                'Key': object_key
-            },
-            ExpiresIn=expiration
-        )
-        return url
-    except Exception as e:
-        print("❌ Error generating pre-signed URL:", e)
-        return None
-
-@app.route('/api/search-patient', methods=['POST'])
-def search_patient():
-    query = request.form.get('query')
-    if not query:
-        return jsonify({'error': 'Missing patient name'}), 400
-
-    try:
-        conn = mysql.connector.connect(
-            host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
-        )
-        cursor = conn.cursor(dictionary=True)
-
-        cursor.execute("""
-            SELECT s3_url FROM reports
-            WHERE patient_name LIKE %s
-            ORDER BY uploaded_at DESC
-        """, (f"%{query}%",))
-        s3_urls = [row['s3_url'] for row in cursor.fetchall()]
-
-        report_links = []
-        for url in s3_urls:
-            if ".s3." in url:
-                object_key = url.split(".amazonaws.com/")[-1]
-                signed_url = generate_presigned_url(BUCKET, object_key)
-                if signed_url:
-                    report_links.append(signed_url)
-
-        cursor.execute("""
-            SELECT patient_name, medicine, instruction, quote, notes, created_at
-            FROM prescriptions
-            WHERE patient_name LIKE %s
-            ORDER BY created_at DESC
-        """, (f"%{query}%",))
-        prescriptions = []
-        for row in cursor.fetchall():
-            prescriptions.append({
-                "patient": row["patient_name"],
-                "medicine": row["medicine"],
-                "instruction": row["instruction"],
-                "quote": row["quote"],
-                "notes": row["notes"],
-                "date": row["created_at"].strftime("%d %B %Y")
-            })
-
-        cursor.close()
-        conn.close()
-
-        return jsonify({
-            "reports": report_links,
-            "prescriptions": prescriptions
-        })
-
-    except Exception as e:
-        print("❌ Error in /search-patient:", e)
-        return jsonify({'error': 'Internal server error'}), 500
-
-@app.route('/api/get-notifications', methods=['GET'])
-def get_notifications():
-    try:
-        conn = mysql.connector.connect(
-            host=DB_HOST, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
-        )
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT type, message, timestamp FROM notifications ORDER BY timestamp DESC LIMIT 20")
-        rows = cursor.fetchall()
-        cursor.close()
-        conn.close()
-
-        notifications = []
-        for row in rows:
-            formatted_time = row['timestamp'].strftime("%d %B %Y at %I:%M %p")
-            notifications.append({
-                "type": row['type'],
-                "message": row['message'],
-                "timestamp": formatted_time
-            })
-
-        return jsonify({"notifications": notifications})
-    except Exception as e:
-        print("❌ Notification fetch error:", e)
-        return jsonify({"error": "Failed to load notifications"}), 500
-
-@app.route('/api/generate-prescription-pdf', methods=['POST'])
-def generate_prescription_pdf():
-    data = request.form
-    patient = data.get("patient_name")
-    medicine = data.get("medicine")
-    instruction = data.get("instruction")
-    quote = data.get("quote", "Stay strong and get well soon!")
-
-    if not all([patient, medicine, instruction]):
-        return "❌ Missing fields", 400
-
-    buffer = io.BytesIO()
-    pdf = canvas.Canvas(buffer, pagesize=letter)
-    pdf.setTitle("MedVault Prescription")
-
-    pdf.setFont("Helvetica-Bold", 16)
-    pdf.drawString(50, 750, "🩺 MedVault Prescription")
-
-    pdf.setFont("Helvetica", 12)
-    pdf.drawString(50, 710, f"👤 Patient Name: {patient}")
-    pdf.drawString(50, 690, f"💊 Medicine: {medicine}")
-    pdf.drawString(50, 670, f"📝 Instructions: {instruction}")
-    pdf.drawString(50, 650, f"💬 Quote: {quote}")
-
-    pdf.drawString(50, 620, f"📅 Generated on: {datetime.now().strftime('%d %B %Y at %I:%M %p')}")
-    pdf.showPage()
-    pdf.save()
-
-    buffer.seek(0)
-
-    return send_file(buffer, as_attachment=True, download_name=f"{patient}_prescription.pdf", mimetype='application/pdf')
-
-@app.route('/api/doctor_login', methods=['POST'])
-def doctor_login():
-    email = request.form['email']
-    password = request.form['password']
-
-    try:
-        response = client.initiate_auth(
-            ClientId=COGNITO_APP_CLIENT_ID,
-            AuthFlow='USER_PASSWORD_AUTH',
-            AuthParameters={
-                'USERNAME': email,
-                'PASSWORD': password
-            }
-        )
-    except Exception as e:
-        return f"Login failed: {str(e)}"
-
-    try:
-        conn = mysql.connector.connect(
-            host=DB_HOST,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            database=DB_NAME
-        )
-        cursor = conn.cursor()
-        cursor.execute("SELECT role FROM users WHERE email = %s", (email,))
-        result = cursor.fetchone()
-        conn.close()
-    except Exception as e:
-        return f"DB error: {str(e)}"
-
-    if result is None:
-        return "User not found in DB.", 403
-
-    role = result[0]
-
-    if role != 'doctor':
-        return "❌ Access Denied. You are not authorized to log in as a Doctor.", 403
-
-    session['email'] = email
-    session['role'] = 'doctor'
-    session['doctor_logged_in'] = True
-    session['patient_logged_in'] = False
-    session.permanent = True
-
-    return redirect('/doctor/doctor_main_dashboard.html')
 
 @app.route('/api/patient_login', methods=['POST'])
 def patient_login():
