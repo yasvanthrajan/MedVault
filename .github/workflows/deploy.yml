@@ -2,7 +2,7 @@ name: Deploy MedVault Backend to EC2
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   deploy:
@@ -17,14 +17,26 @@ jobs:
       uses: webfactory/ssh-agent@v0.9.0
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
+        
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/backend
-          git pull origin main
+          # Check if the repository directory exists
+          if [ -d "MedVault" ]; then
+            cd MedVault/backend
+            # Pull latest code
+            git pull origin main
+          else
+            # Clone the repository if it doesn't exist
+            git clone https://github.com/Yasvanth-Rajan/MedVault.git
+            cd MedVault/backend
+          fi
+
+          # Stop and remove existing container
           docker stop medvault || true
           docker rm medvault || true
+
+          # Build and run new container
           docker build -t medvault .
           docker run -d --name medvault --env-file .env -p 80:5000 medvault
         EOF
