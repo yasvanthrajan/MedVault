@@ -1,7 +1,35 @@
+name: Deploy MedVault Backend to EC2
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          # Clone repo if missing
+          # Install Docker if not installed
+          if ! command -v docker &> /dev/null
+          then
+            sudo apt-get update -y
+            sudo apt-get install -y docker.io
+            sudo usermod -aG docker ubuntu
+          fi
+
+          # Clone repo if not already present
           if [ ! -d "/home/ubuntu/MedVault" ]; then
             git clone https://github.com/yasvanthrajan/MedVault.git /home/ubuntu/MedVault
           fi
@@ -9,17 +37,15 @@
           cd /home/ubuntu/MedVault
           git pull origin master
 
+          # Go to backend
           cd backend
 
-          # Stop/remove old container if exists
+          # Stop and remove old container if running
           docker stop medvault || true
           docker rm medvault || true
 
-          # Free port 5000 if any container is still using it
-          docker ps -q --filter "publish=5000" | xargs -r docker stop
-
-          # Build using backend/Dockerfile
-          docker build -t medvault -f Dockerfile .
+          # Build fresh image
+          docker build -t medvault .
 
           # Run new container
           docker run -d --name medvault -p 5000:5000 medvault
