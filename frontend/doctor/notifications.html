@@ -393,7 +393,7 @@
       
       
       // Actual API call (commented out for now)
-      fetch("http://127.0.0.1:5000/get-notifications")
+      fetch("/api/get-notifications")
         .then(res => res.json())
         .then(data => {
           if (data.notifications.length === 0) {

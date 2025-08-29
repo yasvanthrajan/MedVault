@@ -285,7 +285,7 @@
       buttonText.textContent = 'Verifying...';
       submitBtn.disabled = true;
 
-      fetch("http://localhost:5000/verify", {
+      fetch("/api/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code })
@@ -308,7 +308,7 @@
     });
 
     function resendCode() {
-      fetch("http://localhost:5000/resend-code", {
+      fetch("/api/resend-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })

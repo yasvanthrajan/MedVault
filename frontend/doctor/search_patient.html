@@ -582,7 +582,7 @@
 
       setLoadingState(true);
 
-      fetch("http://localhost:5000/search-patient", {
+      fetch("/api/search-patient", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "query=" + encodeURIComponent(query),

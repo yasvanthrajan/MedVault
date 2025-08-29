@@ -390,7 +390,7 @@
       const password = document.getElementById("password").value;
       const role = "doctor";
 
-      fetch("http://localhost:5000/cognito-signup", {
+      fetch("/api/cognito-signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role })
@@ -418,7 +418,7 @@
 
       const code = document.getElementById("code").value;
 
-      fetch("http://localhost:5000/confirm-signup", {
+      fetch("/api/confirm-signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cachedEmail, code: code, role: "doctor" })

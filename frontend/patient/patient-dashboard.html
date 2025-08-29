@@ -254,7 +254,7 @@
 
   <script>
     function logout() {
-      fetch("http://127.0.0.1:5000/logout", { method: "POST" })
+      fetch("/api/logout", { method: "POST" })
         .then(() => {
           alert("Logged out successfully!");
           window.location.href = "/frontend/patient/patient_login.html";
@@ -266,7 +266,7 @@
   </script>
   
   <script>
-    fetch("/cognito-check-login", { credentials: "include" })
+    fetch("/api/cognito-check-login", { credentials: "include" })
       .then(res => res.json())
       .then(data => {
         if (!data.logged_in || data.role !== "patient") {

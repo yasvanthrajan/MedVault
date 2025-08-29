@@ -314,7 +314,7 @@
     formData.append("date", form.date.value);
     formData.append("reason", form.problem.value);
 
-    fetch("http://localhost:5000/book-appointment", {
+    fetch("/api/book-appointment", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: formData.toString()
