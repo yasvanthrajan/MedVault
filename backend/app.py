@@ -24,7 +24,6 @@ from flask_session import Session
 
 app = Flask(__name__, template_folder="../frontend", static_folder="../frontend")
 
-# Enhanced Session Configuration
 app.secret_key = "supersecretkey"
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_COOKIE_NAME'] = 'medvault_session'
@@ -39,8 +38,6 @@ sns = boto3.client('sns', region_name='ap-south-1')
 
 load_dotenv()
 
-# The CORS origin will be your EC2 public IP or domain.
-# For now, we use a wildcard for simplicity until your domain is set up.
 CORS(app, supports_credentials=True, resources={
     r"/api/*": {
         "origins": "*",
@@ -50,7 +47,6 @@ CORS(app, supports_credentials=True, resources={
 
 logging.basicConfig(level=logging.DEBUG)
 
-# AWS & Twilio Config
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 AWS_REGION = os.getenv("AWS_REGION")
@@ -62,7 +58,6 @@ TWILIO_PHONE = os.getenv("TWILIO_PHONE")
 DOCTOR_PHONE = os.getenv("DOCTOR_PHONE")
 PATIENT_PHONE = os.getenv("PATIENT_PHONE")
 
-# MySQL Config
 DB_HOST = os.getenv("DB_HOST")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
@@ -72,7 +67,6 @@ COGNITO_APP_CLIENT_ID = os.getenv("COGNITO_APP_CLIENT_ID")
 COGNITO_CLIENT_SECRET = os.getenv("COGNITO_CLIENT_SECRET")
 COGNITO_USER_POOL_ID = os.getenv("COGNITO_USER_POOL_ID")
 
-# AWS S3 Setup
 s3 = boto3.client(
     's3',
     aws_access_key_id=AWS_ACCESS_KEY,
@@ -119,7 +113,6 @@ def get_user_role_from_db(email):
     connection.close()
     return result[0] if result else None
 
-# --- API ROUTES - All now use '/api/' prefix ---
 @app.route("/api/cognito-check-login")
 def cognito_check_login():
     if session.get("doctor_logged_in"):
@@ -394,64 +387,6 @@ def check_login():
     if session.get("doctor_logged_in"):
         return jsonify({"logged_in": True})
     return jsonify({"logged_in": False})
-
-@app.route("/api/login", methods=["POST"])
-def login():
-    try:
-        username = request.form.get("username") or request.json.get("username")
-        password = request.form.get("password") or request.json.get("password")
-
-        print("🧪 Received username:", username)
-        print("🧪 Received password:", password)
-
-        if not username or not password:
-            return jsonify({ "success": False, "message": "Missing username or password." }), 400
-
-        secret_hash = get_secret_hash(username, COGNITO_APP_CLIENT_ID, COGNITO_CLIENT_SECRET)
-
-        response = client.initiate_auth(
-            ClientId=COGNITO_APP_CLIENT_ID,
-            AuthFlow="USER_PASSWORD_AUTH",
-            AuthParameters={
-                "USERNAME": username,
-                "PASSWORD": password,
-                "SECRET_HASH": secret_hash
-            }
-        )
-
-        user_data = client.admin_get_user(
-            UserPoolId=COGNITO_USER_POOL_ID,
-            Username=username
-        )
-
-        role = None
-        for attr in user_data["UserAttributes"]:
-            if attr["Name"] == "custom:role":
-                role = attr["Value"]
-                break
-
-        if not role:
-            return jsonify({ "success": False, "message": "Role not found." }), 401
-
-        session.permanent = True
-        session["username"] = username
-        session["role"] = role
-        session["access_token"] = response["AuthenticationResult"]["AccessToken"]
-
-        return jsonify({
-            "success": True,
-            "role": role,
-            "redirect": f"/{role}/{role}_main_dashboard.html" if role == "doctor" else f"/patient/patient-dashboard.html",
-            "message": "Login successful."
-        })
-
-    except ClientError as e:
-        print("❌ Login error:", str(e))
-        return jsonify({ "success": False, "message": "Invalid credentials." }), 401
-
-    except Exception as e:
-        print("❌ Server error:", str(e))
-        return jsonify({ "success": False, "message": "Server error." }), 500
 
 @app.route('/api/logout', methods=['GET'])
 def logout():
