@@ -37,16 +37,15 @@ jobs:
           cd /home/ubuntu/MedVault
           git pull origin master
 
-          # Go to backend
           cd backend
 
-          # Stop and remove old container if running
+          # Stop/remove old container
           docker stop medvault || true
           docker rm medvault || true
+          docker ps -q --filter "publish=5000" | xargs -r docker stop
+          docker ps -q --filter "publish=5000" | xargs -r docker rm
 
-          # Build fresh image
+          # Build and run
           docker build -t medvault .
-
-          # Run new container
           docker run -d --name medvault -p 5000:5000 medvault
         EOF
