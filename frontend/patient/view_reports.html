@@ -178,7 +178,7 @@
   const reportList = document.getElementById("reportList");
   const status = document.getElementById("status");
 
-  fetch("http://localhost:5000/get-patient-reports", {
+  fetch("/api/get-patient-reports", {
     credentials: "include"
   })
   .then(res => res.json())

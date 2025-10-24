@@ -302,7 +302,7 @@
 
 
     // Send to backend
-   fetch("http://localhost:5000/upload-report", {
+   fetch("/api/upload-report", {
     method: "POST",
     body: formData,
     credentials: "include"

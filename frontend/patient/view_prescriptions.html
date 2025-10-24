@@ -177,7 +177,7 @@
       status.textContent = "❌ Phone number not found. Please log in again.";
       status.className = "status error";
     } else {
-      fetch(`http://127.0.0.1:5000/get-patient-prescriptions?phone=${encodeURIComponent(phone)}`)
+      fetch("/api/get-patient-prescriptions?phone=${encodeURIComponent(phone)}")
         .then(res => res.json())
         .then(data => {
           if (data.prescriptions && data.prescriptions.length > 0) {

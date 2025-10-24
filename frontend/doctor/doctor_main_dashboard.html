@@ -458,7 +458,7 @@
     }
 
     function logout() {
-      fetch("http://localhost:5000/logout", {
+      fetch("/api/logout", {
         method: "POST",
         credentials: "include"
       }).then(() => {

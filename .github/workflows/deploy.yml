@@ -2,7 +2,7 @@ name: Deploy MedVault Backend to EC2
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master" ] # Make sure this is your main branch!
 
 jobs:
   deploy:
@@ -21,10 +21,20 @@ jobs:
     - name: Deploy to EC2
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ~/backend
-          git pull origin main
-          docker stop medvault || true
-          docker rm medvault || true
-          docker build -t medvault .
-          docker run -d --name medvault --env-file .env -p 80:5000 medvault
+          # 1. Go to the correct project folder
+          cd ~/MedVault 
+          
+          # 2. Pull the latest code
+          git pull origin master  # Change 'master' to 'main' if your branch is named 'main'
+          
+          # 3. Stop and remove the old container (using sudo)
+          sudo docker stop medvault || true
+          sudo docker rm medvault || true
+          
+          # 4. Build the new image (using sudo)
+          sudo docker build -t medvault .
+          
+          # 5. Run the new container (using sudo)
+          # This command loads your secrets from /home/ubuntu/MedVault/.env
+          sudo docker run -d --name medvault --env-file .env -p 80:5000 medvault
         EOF

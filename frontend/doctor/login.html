@@ -305,7 +305,7 @@
     const password = document.getElementById("password").value;
 
     try {
-      const response = await fetch("http://localhost:5000//cognito-login", {
+      const response = await fetch('/api/cognito-login', {
         method: "POST",
         credentials: "include",  // ✅ Needed to keep Flask session cookie
         headers: {

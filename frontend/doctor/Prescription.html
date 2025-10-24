@@ -725,7 +725,7 @@
       messageContent.style.display = 'none';
 
       // Submit using fetch to backend
-      fetch('/send-prescription', {
+      fetch('/api/send-prescription', {
         method: 'POST',
         body: formData,
       })

@@ -292,7 +292,7 @@
       submitBtn.value = 'Verifying...';
       submitBtn.disabled = true;
 
-      fetch("http://localhost:5000/cognito-verify", {
+      fetch("/api/cognito-verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code })
