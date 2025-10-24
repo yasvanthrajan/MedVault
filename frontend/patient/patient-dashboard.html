@@ -251,29 +251,59 @@
       <button class="btn danger" onclick="logout()">Logout</button>
     </div>
   </div>
-
-  <script>
-    function logout() {
-      fetch("http://127.0.0.1:5000/logout", { method: "POST" })
-        .then(() => {
-          alert("Logged out successfully!");
+<script>
+  // ✅ Logout Function
+  function logout() {
+    fetch("/logout", { // 1. Switched to relative path
+      method: "GET",
+      credentials: "include" // Correct: needed to clear the session cookie
+    })
+      .then((res) => {
+        if (res.ok) {
+          alert("✅ Logged out successfully!");
+          // Clear local data
+          localStorage.removeItem("patient_name");
+          localStorage.removeItem("patient_phone");
+          // Redirect to login
           window.location.href = "/frontend/patient/patient_login.html";
-        })
-        .catch(() => {
-          alert("Logout failed. Please try again.");
-        });
-    }
-  </script>
-  
-  <script>
-    fetch("/cognito-check-login", { credentials: "include" })
-      .then(res => res.json())
-      .then(data => {
-        if (!data.logged_in || data.role !== "patient") {
-          window.location.href = "/frontend/patient/patient_login.html";
-
+        } else {
+          // Handle cases where the server fails to log out
+          alert("⚠️ Logout request failed. Please try again.");
         }
+      })
+      .catch((err) => { // 2. Added a .catch() block for network errors
+        console.error("Logout error:", err);
+        alert("❌ Logout failed. A network error occurred.");
+        // We still redirect to login even if the server fails to respond
+        window.location.href = "/frontend/patient/patient_login.html";
       });
-  </script>
+  }
+
+  // ✅ Session Validation Check (Runs on page load)
+  fetch("http://localhost:5000/cognito-check-login", {
+    method: "GET",
+    credentials: "include"
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("🔍 Login check:", data);
+      if (!data.logged_in || data.role !== "patient") {
+        console.warn("❌ Not logged in or wrong role, redirecting...");
+        window.location.href = "/frontend/patient/patient_login.html";
+      } else {
+        console.log("✅ Logged in as patient:", data.name);
+        // Optional: Update UI with user details
+        // document.getElementById("patientName").textContent =
+        //   data.name || localStorage.getItem("patient_name") || "Patient";
+      }
+    })
+    .catch((err) => {
+      console.error("⚠️ Error checking login:", err);
+      // In case of network or backend error, force re-login
+      window.location.href = "/frontend/patient/patient_login.html";
+    });
+</script>
+`
+
 </body>
 </html>

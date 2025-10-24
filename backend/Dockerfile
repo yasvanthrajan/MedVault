@@ -1,17 +1,21 @@
-# ✅ Use official Python image
 FROM python:3.10
 
-# ✅ Set working directory
 WORKDIR /app
 
-# ✅ Copy all backend code
-COPY . .
+# Copy backend requirements and install
+COPY backend/requirements.txt .
+RUN pip install -r requirements.txt
 
-# ✅ Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy backend and frontend
+COPY backend/ ./backend
+COPY frontend/ ./frontend
 
-# ✅ Expose the Flask port
+# Env variables
+ENV FLASK_APP=backend/app.py
+ENV FLASK_RUN_HOST=0.0.0.0
+
+# Expose port
 EXPOSE 5000
 
-# ✅ Start the app
-CMD ["python", "app.py"]
+# Start Flask
+CMD ["python", "backend/app.py"]
