@@ -183,7 +183,7 @@
     status.textContent = "Sending emergency alert...";
     status.className = "status";
 
-    fetch("/api/trigger-emergency", {
+    fetch("/trigger-emergency", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

@@ -805,7 +805,7 @@
       const button = document.querySelector('.logout-btn');
       button.classList.add('loading');
       
-      fetch("/api/logout", { method: "POST" })
+      fetch("/logout", { method: "POST" })
         .then(() => {
           alert("✅ Logged out successfully!");
           window.location.href = "login.html";
@@ -817,7 +817,7 @@
     }
 
     // 📅 Load Appointments
-    fetch("/api/get-appointments")
+    fetch("/get-appointments")
       .then(res => res.json())
       .then(data => {
         const tbody = document.querySelector("#appointmentsTable tbody");
@@ -880,7 +880,7 @@
       button.classList.add('loading');
       button.disabled = true;
 
-      fetch("/api/confirm-appointment", {
+      fetch("/confirm-appointment", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: `appointment_id=${appointmentId}&patient_name=${encodeURIComponent(name)}&patient_phone=${encodeURIComponent(phone)}&confirmed_time=${encodeURIComponent(selectedTime)}`
@@ -916,7 +916,7 @@
     document.head.appendChild(style);
 
     // 📜 Load History
-    fetch("/api/get-confirmed-appointments")
+    fetch("/get-confirmed-appointments")
       .then(res => res.json())
       .then(data => {
         const section = document.getElementById("historyList");

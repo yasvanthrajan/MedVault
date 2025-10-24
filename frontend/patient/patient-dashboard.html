@@ -280,7 +280,7 @@
   }
 
   // ✅ Session Validation Check (Runs on page load)
-  fetch("http://localhost:5000/cognito-check-login", {
+  fetch("/cognito-check-login", {
     method: "GET",
     credentials: "include"
   })
