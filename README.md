@@ -114,6 +114,9 @@ Below is the complete MedVault architecture connecting frontend, backend, and AW
 ![MixCollage-25-Oct-2025-08-42-AM-8235](https://github.com/user-attachments/assets/887cdf3e-96a6-46ca-afd4-0497491b8553)
 📷  CI/CD GitHub Actions pipeline success:
 <img width="959" height="463" alt="cicd" src="https://github.com/user-attachments/assets/ecf09c0d-a786-474a-98dd-f03349d860af" />
+📷 Messages:
+![Messages](https://github.com/user-attachments/assets/62cc2c3d-5632-4704-9770-731cfe1ee3cd)
+
 
 
 ---
@@ -184,9 +187,8 @@ MedVault/
 
 ## 🔗 Live Demo / Repo
 
-🌐 **Live Project:** _[[](http://13.51.162.84/)]_ 
-💻 **GitHub Repository:** _[[](https://github.com/yasvanthrajan/MedVault)]_
-
+🌐 **Live Project:** _[http://13.51.162.84/](http://13.51.162.84/)_  
+💻 **GitHub Repository:** _[https://github.com/yasvanthrajan/MedVault](https://github.com/yasvanthrajan/MedVault)_
 ---
 
 ## 🧑‍💻 Developed By
