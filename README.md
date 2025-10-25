@@ -187,7 +187,7 @@ MedVault/
 
 ## 🔗 Live Demo / Repo
 
-🌐 **Live Project:** _[http://13.51.162.84/](http://13.51.162.84/)_  
+🌐 **Live Project:** _[http://54.87.157.167/](http://54.87.157.167/)_  with Elastic IP
 💻 **GitHub Repository:** _[https://github.com/yasvanthrajan/MedVault](https://github.com/yasvanthrajan/MedVault)_
 ---
 
